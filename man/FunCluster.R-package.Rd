@@ -3,8 +3,8 @@
 \docType{package}
 \title{Functional Profiling of cDNA Microarray Expression Data}
 \description{
-          FunCluster performs a functional analysis of microarray data based on Gene Ontology & KEGG 
-	  annotations. FunCluster is designed to build functional classes of putatively co-regulated
+          FunCluster performs a functional analysis of microarray expression data based on Gene Ontology
+          & KEGG annotations. FunCluster is designed to build functional classes of putatively co-regulated
 	  biological processes through a specially designed clustering procedure relying on expression
 	  data and functional annotations.
 }
@@ -53,13 +53,17 @@
           Corneliu Henegar \email{corneliu@henegar.info}
 }
 \references{
-          1. Cancello R, Henegar C, Viguerie N, Taleb S, Poitou C, Rouault C, Coupaye M, Pelloux V, Hugol D, Bouillot JL, 
+          1. Henegar C, Cancello R, Rome S, Vidal H, Clement K, Zucker JD. Clustering biological annotations and gene 
+	            	expression data to identify putatively co-regulated biological processes. J Bioinform Comput Biol.
+	            	2006 Aug; 4(4) (in press).
+                    
+          2. Cancello R, Henegar C, Viguerie N, Taleb S, Poitou C, Rouault C, Coupaye M, Pelloux V, Hugol D, Bouillot JL, 
           		Bouloumie A, Barbatelli G, Cinti S, Svensson PA, Barsh GS, Zucker JD, Basdevant A, Langin D, 
           		Clement K. Reduction of macrophage infiltration and chemoattractant gene expression changes in 
           		white adipose tissue of morbidly obese subjects after surgery-induced weight loss. 
           		Diabetes 2005; 54(8):2277-86.
 
-          2. FunCluster website: \url{http://corneliu.henegar.info/FunCluster.htm}
+          3. FunCluster website: \url{http://corneliu.henegar.info/FunCluster.htm}
 }
 \keyword{ cluster }
 

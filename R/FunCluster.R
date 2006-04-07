@@ -247,8 +247,9 @@ if(!is.null(up) && !is.null(down) && is.null(genes.lst) && !is.null(annotations)
 	
 		
 	
-
-	#resterm(genes.data,taxoname,"LIST",locus.name)
+	if(details == TRUE){
+		resterm(genes.data,taxoname,"LIST",locus.name,results.dir=results.dir)
+	}
 	
 	if(clusterm == "cs"){
 		c.genes <- clusterm.cs(genes.data,taxoname,"LIST",alpha,compare,genes.frame,genes.correl)
@@ -257,7 +258,7 @@ if(!is.null(up) && !is.null(down) && is.null(genes.lst) && !is.null(annotations)
 		
 		c.genes <- pclust(genes.data,c.genes,annotations,taxoname,"LIST")		
 	
-		resclust(genes.data,c.genes,taxoname,"LIST","CS",locus.name)
+		resclust(genes.data,c.genes,taxoname,"LIST","CS",locus.name,results.dir=results.dir)
 	
 
 	}else if(clusterm == "cc"){
@@ -267,7 +268,7 @@ if(!is.null(up) && !is.null(down) && is.null(genes.lst) && !is.null(annotations)
 					
 		c.genes <- pclust(genes.data,c.genes,annotations,taxoname,"LIST")		
 				
-		resclust(genes.data,c.genes,taxoname,"LIST","CC",locus.name)
+		resclust(genes.data,c.genes,taxoname,"LIST","CC",locus.name,results.dir=results.dir)
 
 
 	}
@@ -762,12 +763,12 @@ annotate <- function(annotations,exp.genes,nom,terms.name,taxoname){
 #############################################################################################
 
 
-annot.list <- function(ll,file.annot,taxoname,terms.name){
+annot.list <- function(ll,file.annot,taxoname,terms.name,locus.name){
 	
 	cat(paste("\n\t",taxoname," annotation of genes started...\n",sep=""))
 	
-	ll <- levels(as.factor(as.matrix(ll)))
-	annot.matrix <- matrix(NA,length(ll),1)
+	ll <- as.character(ll)
+	annot.matrix <- matrix("",length(ll),2)
 	annot.matrix <- cbind(ll,annot.matrix)
 	
 	for(i in 1:length(ll)){
@@ -780,8 +781,11 @@ annot.list <- function(ll,file.annot,taxoname,terms.name){
 				annot.string <- paste(annot.string,terms.name[terms.name[,1]==as.character(annot.gene[j,2]),2],"; ",sep="")
 			}
 			
-			annot.matrix[annot.matrix[,1]==ll[i],2] <- annot.string
+			
+			annot.matrix[i,3] <- annot.string
+			
 		}
+		annot.matrix[i,2] <- locus.name[locus.name[,1]==ll[i],2]
 	
 	}
 	
@@ -1752,8 +1756,7 @@ if(!is.null(clusters)){
 	names(term.fdr) <- exp.id
 	names(index) <- exp.id
 		
-	#locus <- '=HYPERLINK("http://www.ncbi.nlm.nih.gov/LocusLink/LocRpt.cgi?l='	# LocusLink hyperlink string
-	
+
 	str.genes.cluster <- matrix("",length(gene.cluster),1)
 	str.names.cluster <- matrix("",length(gene.cluster),1)
 			
@@ -1763,8 +1766,8 @@ if(!is.null(clusters)){
 		"" -> b
 		"" -> d
 		for(j in 1:length(a)){
-			paste(b,a[j],'\n',sep="") -> b
-			paste(d,locus.name[locus.name[,1] == a[j],2],';\n',sep="") -> d
+			paste(b,a[j],"\n",sep="") -> b
+			paste(d,"<option value='",locus.name[locus.name[,1] == a[j],2],"'>",locus.name[locus.name[,1] == a[j],2],"</option>",sep="") -> d
 		}
 		b -> str.genes.cluster[i]
 		d -> str.names.cluster[i]
@@ -1775,81 +1778,235 @@ if(!is.null(clusters)){
 	wd <- getwd()	
 	options(warn=-1)
 	
+	head <- paste("<html>
+
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>
+<title>Genes ",nom," - ",taxoname," Annotation Clusters</title>
+</head>
+
+<body link='#0000FF' vlink='#0000FF' alink='#0000FF'>
+
+<table id='table0' style='width: 700px; border-collapse: collapse' cellPadding='0' border='0'>
+	<tr>
+		<td style='font-weight: 700; font-size: 10pt; vertical-align: middle; color: navy; font-style: normal; font-family: Arial, sans-serif; white-space: nowrap; height: 38pt; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		<span lang='en-us' style='LETTER-SPACING: 2pt'><font size='3'>Genes ",nom," -
+		",taxoname," Annotation Clusters</font></span></td>
+	</tr>
+	<tr>
+		<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		&nbsp;</td>
+	</tr>
+	<tr>
+		<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		<font face='Times New Roman' size='3'>
+		<b><span lang='en-us'>Used notations:</span></b></font></td>
+	</tr>
+	<tr>
+		<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		&nbsp;</td>
+	</tr>
+	<tr>
+		<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		<ul>
+			<li><font face='Times New Roman' size='3'><span lang='en-us'><b>List Hits</b> - the number of genes
+			annotated by the considered ",taxoname," category or annotation cluster within
+			the analyzed list of target genes</span> </font> </li>
+		</ul>
+		</td>
+	</tr>
+	<tr>
+		<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		<ul>
+			<li><font face='Times New Roman' size='3'><span lang='en-us'><b>List </b></span><b>Total</b><span lang='en-us'>
+			- the number of genes within the analyzed list of target genes
+			having at least one ",taxoname," annotation</span> </font> </li>
+		</ul>
+		</td>
+	</tr>
+	<tr>
+		<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		<ul>
+			<li><font face='Times New Roman' size='3'><b>Population<span lang='en-us'> Hits</span></b><span lang='en-us'>
+			- the number of genes, available on the entire microarray, annotated
+			by the considered ",taxoname," category or annotation cluster</span>
+			</font>
+			</li>
+		</ul>
+		</td>
+	</tr>
+	<tr>
+		<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		<ul>
+			<li><font face='Times New Roman' size='3'><b>Population Total</b> - the number of genes available on the
+			entire microarray and having at least one ",taxoname," annotation </font>
+			</li>
+		</ul>
+		</td>
+	</tr>
+	<tr>
+		<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		<ul>
+			<li><font face='Times New Roman' size='3'><span lang='en-us'><b>P-value</b> - the significance p-value of
+			the gene enrichment of the considered ",taxoname," category or annotation
+			cluster, calculated with a unilateral Fisher exact test</span>
+			</font> </li>
+		</ul>
+		</td>
+	</tr>
+	<tr>
+		<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+		<ul>
+			<li><font face='Times New Roman' size='3'><span lang='en-us'><b>FDR (q-value)</b> - the estimated value of
+			the false discovery rate (FDR) by using the Benjamini &amp; Hochberg
+			(2001) method</span> </font> </li>
+		</ul>
+		</td>
+	</tr>
+</table>
+<p>",sep="")
+	
+	
+	write(head, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
+	
+	
 	for(i in 1:length(id.cluster)){
 
-		center.cluster.lnk <- ""
+		cluster.head <- paste("
+		<p>
+..........................................................................................................................</p>
+<p><b><span style='LETTER-SPACING: 2pt; color: navy; font-family: Arial, sans-serif'><font size='3'>Cluster n° ",i,"</font></span></b></p>
+<table border='1' id='table",i,"' style='border-collapse: collapse' bordercolor='#808080'>
+	<tr>
+		<td align='center' width='45'><b>Terms</b></td>
+		<td align='center' width='45'>
+		<p style='margin-top: 0; margin-bottom: 0'><b>List </b></p>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Hits</b></td>
+		<td align='center' width='45'>
+		<p style='margin-top: 0; margin-bottom: 0'><b>List </b></p>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Total</b></td>
+		<td align='center' width='70'>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Population </b></p>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Hits</b></td>
+		<td align='center' width='70'>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Population </b></p>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Total</b></td>
+		<td align='center' width='100'>
+		<p style='margin-top: 0; margin-bottom: 0'><b>FDR </b></p>
+		<p style='margin-top: 0; margin-bottom: 0'><b>(q-value)</b></td>
+		<td align='center' width='100'><b>Genes ID's</b></td>
+		<td align='center' width='200'><b>Genes Names</b></td>
+	</tr>
+	<tr>
+		<td align='center' width='45'><font size='3'>",length(id.cluster[[i]]),"</font></td>
+		<td align='center' width='45'><font size='3'>",data.cluster[i,1],"</font></td>
+		<td align='center' width='45'><font size='3'>",data.cluster[i,2],"</font></td>
+		<td align='center' width='70'><font size='3'>",data.cluster[i,3],"</font></td>
+		<td align='center' width='70'><font size='3'>",data.cluster[i,4],"</font></td>
+		<td align='center' width='70'><font size='3'>",format(data.cluster[i,7],digits=3,scientific=TRUE),"</font></td>
+		<td align='center' width='100'><textarea rows='0' name='Genes",i,"1' cols='7'>",str.genes.cluster[i],"</textarea></td>
+		<td align='center' width='200'><select size='1' name='Genes",i,"2'>
+	",str.names.cluster[i],"
+	</select></td>
+	</tr>
+</table>
+<p><b>Terms</b></p>
+<table border='1' id='table2' style='border-collapse: collapse' bordercolor='#808080'>
+	<tr>
+		<td align='center' width='70'><b>ID</b></td>
+		<td align='center' width='200'><b>Term</b></td>
+		<td align='center' width='45'><b>Rank</b></td>
+		<td align='center' width='45'>
+		<p style='margin-top: 0; margin-bottom: 0'><b>List </b></p>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Hits</b></td>
+		<td align='center' width='45'>
+		<p style='margin-top: 0; margin-bottom: 0'><b>List </b></p>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Total</b></td>
+		<td align='center' width='70'>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Population </b></p>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Hits</b></td>
+		<td align='center' width='70'>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Population </b></p>
+		<p style='margin-top: 0; margin-bottom: 0'><b>Total</b></td>
+		<td align='center' width='100'><b>P-value</b></td>
+		<td align='center' width='100'><b>Genes ID's</b></td>
+		<td align='center' width='200'><b>Genes Names</b></td>
+	</tr>",sep="")
 		
-		if(center.cluster[i] != "NA"){
-			
-			if(taxoname == "GO Biological Process" || taxoname == "GO Cellular Component" || taxoname == "GO Molecular Function"){
-				center.cluster.lnk <- paste('=HYPERLINK("http://www.ebi.ac.uk/ego/QuickGO?mode=display&entry=GO%3A',substr(center.cluster[i],4,10),'","',center.cluster[i],'")',sep="")
-			}else{
-				center.cluster.lnk <- center.cluster[i]
-			}
-			
-		}else{
-			center.cluster.lnk <- "NA"
-		}
-		
-		cols.cluster <- data.frame("ID"=paste("Cluster ",i,sep=""),"Center"=center.cluster.lnk,"Terms"=length(id.cluster[[i]]),"List.Hits"=data.cluster[i,1],"List.Total"=data.cluster[i,2],"Population.Hits"=data.cluster[i,3],"Population.Total"=data.cluster[i,4],"P.values"=data.cluster[i,5],"Hommel.adjusted"=data.cluster[i,6],"FDR"=data.cluster[i,7],"LocusLink.ID"=str.genes.cluster[i],"Genes"=str.names.cluster[i])
-					
-		columns <- c("=======","Center","Terms","List Hits","List Total","Population Hits","Population Total","P-value","Adjusted P-value (Hommel)","FDR (Benjamini & Hochberg)","LocusLink IDs","Genes")
-		write.table(cols.cluster,file=paste(wd,"/",results.dir,"/",pref," Clusters ",taxoname," ",nom,".xls",sep=""),append=TRUE,quote=TRUE,sep="\t",eol="\n",dec=".",row.names=FALSE,col.names=columns,qmethod="double")
-		
-		#white.line <- " "
-		#write.table(white.line,file=paste(wd,"/Results/Clusters ",taxoname," ",nom,".xls",sep=""),append=TRUE,quote=TRUE,sep="\t",eol="\n",dec=".",row.names=FALSE,col.names=FALSE,qmethod="double")
-		
-		exp.term.lnk <- matrix("",length(id.cluster[[i]]),1)
-		exp.id.lnk <- matrix("",length(id.cluster[[i]]),1)
-		str.genes.term <- matrix("",length(id.cluster[[i]]),1)
-		str.names.term <- matrix("",length(id.cluster[[i]]),1)
-		term.numbers <- matrix(0,length(id.cluster[[i]]),7)
+		write(cluster.head, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
 		
 		
 		for(j in 1:length(id.cluster[[i]])){
 			
-							
+			exp.term.lnk <- ""
+			exp.id.lnk <- ""
+			str.genes.term <- ""
+			str.names.term <- ""
+						
+			
 			exp.list[[id.cluster[[i]][j]]] -> a
 			
 			"" -> b
 			"" -> d
 			for(k in 1:length(a)){
-				paste(b,a[k],'\n',sep="") -> b
-				paste(d,locus.name[locus.name[,1] == a[k],2],';\n',sep="") -> d
+				paste(b,a[k],"\n",sep="") -> b
+				paste(d,"<option value='",locus.name[locus.name[,1] == a[k],2],"'>",locus.name[locus.name[,1] == a[k],2],"</option>",sep="") -> d
 			}
-			b -> str.genes.term[j]
-			d -> str.names.term[j]
+			b -> str.genes.term
+			d -> str.names.term
 				
 			rm(a,b)			
 			
 			if(taxoname == "GO Biological Process" || taxoname == "GO Cellular Component" || taxoname == "GO Molecular Function"){
-				exp.term.lnk[j] <- paste('=HYPERLINK("http://www.ebi.ac.uk/ego/QuickGO?mode=display&entry=GO%3A',substr(id.cluster[[i]][j],4,10),'","',term.cluster[[i]][j],'")',sep="")
-				exp.id.lnk[j] <- paste('=HYPERLINK("http://www.ebi.ac.uk/ego/QuickGO?mode=display&entry=GO%3A',substr(id.cluster[[i]][j],4,10),'","',id.cluster[[i]][j],'")',sep="")
+				exp.term.lnk <- paste("<a target='_blank' href='http://www.ebi.ac.uk/ego/DisplayGoTerm?id=",id.cluster[[i]][j],"' style='text-decoration: none'>
+						<font size='3'>",term.cluster[[i]][j],"</font></a>",sep="")
+				exp.id.lnk <- paste("<a target='_blank' href='http://www.ebi.ac.uk/ego/DisplayGoTerm?id=",id.cluster[[i]][j],"' style='text-decoration: none'>
+						<font size='3'>",id.cluster[[i]][j],"</font></a>",sep="")
 			}else{
-				exp.term.lnk[j] <- as.character(term.cluster[[i]][j])
-				exp.id.lnk[j] <- as.character(id.cluster[[i]][j])
+				exp.term.lnk <- paste("<font size='3'>",term.cluster[[i]][j],"</font>",sep="")
+				exp.id.lnk <- paste("<font size='3'>",id.cluster[[i]][j],"</font>",sep="")
 			}
 			
-			term.numbers[j,1] <- index[id.cluster[[i]][j]]
-			term.numbers[j,2] <- exp.nr[id.cluster[[i]][j]]
-			term.numbers[j,3] <- pop.hits[id.cluster[[i]][j]]
-			term.numbers[j,4] <- term.p[id.cluster[[i]][j]]
-			term.numbers[j,5] <- term.hommel[id.cluster[[i]][j]]
-			term.numbers[j,6] <- term.fdr[id.cluster[[i]][j]]
 			
-			
-		}			
+						
 		
-		terms.clust <- data.frame("ID"=exp.id.lnk,"Term"=exp.term.lnk,"Rank"=term.numbers[,1],"List.Hits"=term.numbers[,2],"List.Total"=matrix(exp.total[1],length(id.cluster[[i]]),1),"Population.Hits"=term.numbers[,3],"Population.Total"=matrix(pop.total[1],length(id.cluster[[i]]),1),"P.values"=term.numbers[,4],"Hommel.adjusted"=term.numbers[,5],"FDR"=term.numbers[,6],"LocusLink.ID"=str.genes.term,"Genes"=str.names.term)
-		terms.clust <- terms.clust[order(terms.clust[,8]),]
+		cluster.terms <- paste("
+		<tr>
+		<td align='center' width='70'>
+		",exp.id.lnk,"</td>
+		<td align='center' width='200'>
+		",exp.term.lnk,"</td>
+		<td align='center' width='45'><font size='3'>",index[id.cluster[[i]][j]],"</font></td>
+		<td align='center' width='45'><font size='3'>",exp.nr[id.cluster[[i]][j]],"</font></td>
+		<td align='center' width='45'><font size='3'>",data.cluster[i,2],"</font></td>
+		<td align='center' width='70'><font size='3'>",pop.hits[id.cluster[[i]][j]],"</font></td>
+		<td align='center' width='70'><font size='3'>",data.cluster[i,4],"</font></td>
+		<td align='center' width='70'><font size='3'>",format(term.p[id.cluster[[i]][j]], digits = 3, scientific = TRUE),"</font></td>
+		<td align='center' width='100'><textarea rows='0' name='Genes",i,"3' cols='7'>",str.genes.term,"</textarea></td>
+		<td align='center' width='200'><select size='1' name='Genes",i,"4'>",str.names.term,"</select></td>
+		</tr>",sep="")
 		
-		columns <- c("ID","Term","Rank","List Hits","List Total","Population Hits","Population Total","P-values","Adjusted P-values (Hommel)","FDR (Benjamini & Hochberg)","LocusLink IDs","Genes")
-		write.table(terms.clust,file=paste(wd,"/",results.dir,"/",pref," Clusters ",taxoname," ",nom,".xls",sep=""),append=TRUE,quote=TRUE,sep="\t",eol="\n",dec=".",row.names=FALSE,col.names=columns,qmethod="double")
-		white.line <- c(" "," "," ")
-		write.table(white.line,file=paste(wd,"/",results.dir,"/",pref," Clusters ",taxoname," ",nom,".xls",sep=""),append=TRUE,quote=TRUE,sep="\t",eol="\n",dec=".",row.names=FALSE,col.names=FALSE,qmethod="double")
-			
-	
+					
+		write(cluster.terms, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
+
+		}
+		write("</table>", file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
+
 	}
+		
+		end.page <- paste("<p>
+		..........................................................................................................................</p>
+		<p>
+		This file was produced on ",date()," with <a target='_blank' href='http://corneliu.henegar.info/FunCluster.htm' style='text-decoration: none'>
+		<font size='3'>FunCluster 1.01</font></a> using GO and KEGG annotations updated on ",annot.date,".</p>
+		</body>
+
+		</html>",sep="")
+
+		write(end.page, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
+
+	
+	
 }else{
 	cat(paste("\n\t\tNo ",taxoname," ",nom," clustering results to save...",sep=""))
 }
@@ -1873,20 +2030,20 @@ resterm <- function(exp.data,taxoname,nom,locus.name,results.dir){
 	
 if(!is.null(exp.data)){
 	
-	exp.id <- exp.data$exp.id
-	exp.term <- exp.data$exp.term
-	exp.nr <- exp.data$exp.nr
-	exp.total <- exp.data$exp.total
-	pop.hits <- exp.data$pop.hits
-	pop.total <- exp.data$pop.total
-	exp.list <- exp.data$exp.list
-	
 	term.p <- exp.data$term.p
-	term.hommel <- exp.data$term.hommel
-	term.fdr <- exp.data$term.fdr
+	exp.id <- exp.data$exp.id[order(term.p)]
+	exp.term <- exp.data$exp.term[order(term.p)]
+	exp.nr <- exp.data$exp.nr[order(term.p)]
+	exp.total <- exp.data$exp.total[order(term.p)]
+	pop.hits <- exp.data$pop.hits[order(term.p)]
+	pop.total <- exp.data$pop.total[order(term.p)]
+	exp.list <- exp.data$exp.list[order(term.p)]
+	
+	term.p <- sort(term.p)
+	term.hommel <- exp.data$term.hommel[order(term.p)]
+	term.fdr <- exp.data$term.fdr[order(term.p)]
 	#term.qval <- exp.data$term.qval
 	
-	#locus <- '=HYPERLINK("http://www.ncbi.nlm.nih.gov/LocusLink/LocRpt.cgi?l='	# LocusLink hyperlink string
 
 	
 # list (as a string) of genes for each term
@@ -1901,7 +2058,8 @@ if(!is.null(exp.data)){
 		"" -> d
 		for(j in 1:length(a)){
 			paste(b,a[j],'\n',sep="") -> b
-			paste(d,locus.name[locus.name[,1] == a[j],2],';\n',sep="") -> d
+			paste(d,"<option value='",locus.name[locus.name[,1] == a[j],2],"'>",locus.name[locus.name[,1] == a[j],2],"</option>",sep="") -> d
+		
 		}
 		b -> list.genes[i]
 		d -> list.names[i]
@@ -1911,32 +2069,180 @@ if(!is.null(exp.data)){
 	rm(a,b,d)
 	
 	
-# routine for saving the results of treatment for GO annotations as Excel files
+# routine for saving the results of treatment for GO annotations as HTML files
 	
 
 	
 	wd <- getwd()
-	exp.term.lnk <- matrix("",length(exp.id),1)
-	exp.id.lnk <- matrix("",length(exp.id),1)
+	exp.term.lnk <- ""
+	exp.id.lnk <- ""
+	
+	
+	head <- paste("<html>
+	
+	<head>
+	<meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>
+	<title>Genes ",nom," - ",taxoname," Annotations</title>
+	</head>
+	
+	<body link='#0000FF' vlink='#0000FF' alink='#0000FF'>
+	
+	<table id='table0' style='width: 700px; border-collapse: collapse' cellPadding='0' border='0'>
+		<tr>
+			<td style='font-weight: 700; font-size: 10pt; vertical-align: middle; color: navy; font-style: normal; font-family: Arial, sans-serif; white-space: nowrap; height: 38pt; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+			<span lang='en-us' style='LETTER-SPACING: 2pt'><font size='3'>Genes ",nom," -
+			",taxoname," Annotations</font></span></td>
+		</tr>
+		<tr>
+			<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+			&nbsp;</td>
+		</tr>
+		<tr>
+			<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+			<font face='Times New Roman' size='3'>
+			<b><span lang='en-us'>Used notations:</span></b></font></td>
+		</tr>
+		<tr>
+			<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+			&nbsp;</td>
+		</tr>
+		<tr>
+			<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+			<ul>
+				<li><font face='Times New Roman' size='3'><span lang='en-us'><b>List Hits</b> - the number of genes
+				annotated by the considered ",taxoname," category or annotation cluster within
+				the analyzed list of target genes</span> </font> </li>
+			</ul>
+			</td>
+		</tr>
+		<tr>
+			<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+			<ul>
+				<li><font face='Times New Roman' size='3'><span lang='en-us'><b>List </b></span><b>Total</b><span lang='en-us'>
+				- the number of genes within the analyzed list of target genes
+				having at least one ",taxoname," annotation</span> </font> </li>
+			</ul>
+			</td>
+		</tr>
+		<tr>
+			<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+			<ul>
+				<li><font face='Times New Roman' size='3'><b>Population<span lang='en-us'> Hits</span></b><span lang='en-us'>
+				- the number of genes, available on the entire microarray, annotated
+				by the considered ",taxoname," category or annotation cluster</span>
+				</font>
+				</li>
+			</ul>
+			</td>
+		</tr>
+		<tr>
+			<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+			<ul>
+				<li><font face='Times New Roman' size='3'><b>Population Total</b> - the number of genes available on the
+				entire microarray and having at least one ",taxoname," annotation </font>
+				</li>
+			</ul>
+			</td>
+		</tr>
+		<tr>
+			<td style='font-weight: 400; font-size: 10pt; vertical-align: middle; width: 645pt; color: windowtext; font-style: normal; font-family: Arial; white-space: nowrap; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
+			<ul>
+				<li><font face='Times New Roman' size='3'><span lang='en-us'><b>P-value</b> - the significance p-value of
+				the gene enrichment of the considered ",taxoname," category or annotation
+				cluster, calculated with a unilateral Fisher exact test</span>
+				</font> </li>
+			</ul>
+			</td>
+		</tr>
+		
+	</table>
+	<p>",sep="")
+		
+		
+	write(head, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotations.htm",sep=""), append = TRUE, sep = " ")
+		
+	table.head <- paste("
+	<p>
+..........................................................................................................................</p>
+	<p><b>Terms</b></p>
+	<table border='1' id='table2' style='border-collapse: collapse' bordercolor='#808080'>
+		<tr>
+			<td align='center' width='45'><b>Rank</b></td>
+			<td align='center' width='70'><b>ID</b></td>
+			<td align='center' width='200'><b>Term</b></td>
+			<td align='center' width='45'>
+			<p style='margin-top: 0; margin-bottom: 0'><b>List </b></p>
+			<p style='margin-top: 0; margin-bottom: 0'><b>Hits</b></td>
+			<td align='center' width='45'>
+			<p style='margin-top: 0; margin-bottom: 0'><b>List </b></p>
+			<p style='margin-top: 0; margin-bottom: 0'><b>Total</b></td>
+			<td align='center' width='70'>
+			<p style='margin-top: 0; margin-bottom: 0'><b>Population </b></p>
+			<p style='margin-top: 0; margin-bottom: 0'><b>Hits</b></td>
+			<td align='center' width='70'>
+			<p style='margin-top: 0; margin-bottom: 0'><b>Population </b></p>
+			<p style='margin-top: 0; margin-bottom: 0'><b>Total</b></td>
+			<td align='center' width='100'><b>P-value</b></td>
+			<td align='center' width='100'><b>Genes ID's</b></td>
+			<td align='center' width='200'><b>Genes Names</b></td>
+	</tr>",sep="")
+	
+	write(table.head, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotations.htm",sep=""), append = TRUE, sep = " ")
+	
+	
+			
 	
 	for(i in 1:length(exp.id)){
 			
 		if(taxoname == "GO Biological Process" || taxoname == "GO Cellular Component" || taxoname == "GO Molecular Function"){
-			exp.term.lnk[i] <- paste('=HYPERLINK("http://www.ebi.ac.uk/ego/QuickGO?mode=display&entry=GO%3A',substr(exp.id[i],4,10),'","',exp.term[i],'")',sep="")
-			exp.id.lnk[i] <- paste('=HYPERLINK("http://www.ebi.ac.uk/ego/QuickGO?mode=display&entry=GO%3A',substr(exp.id[i],4,10),'","',exp.id[i],'")',sep="")
+			exp.term.lnk <- paste("<a target='_blank' href='http://www.ebi.ac.uk/ego/DisplayGoTerm?id=",exp.id[i],"' style='text-decoration: none'>
+						<font size='3'>",exp.term[i],"</font></a>",sep="")
+			exp.id.lnk <- paste("<a target='_blank' href='http://www.ebi.ac.uk/ego/DisplayGoTerm?id=",exp.id[i],"' style='text-decoration: none'>
+						<font size='3'>",exp.id[i],"</font></a>",sep="")
 		}else{
-			exp.term.lnk[i] <- as.character(exp.term[i])
-			exp.id.lnk[i] <- as.character(exp.id[i])
+			exp.term.lnk <- paste("<font size='3'>",exp.term[i],"</font>",sep="")
+			exp.id.lnk <- paste("<font size='3'>",exp.id[i],"</font>",sep="")
 		}
 			
+	
+		
+	
+	list.terms <- paste("
+		<tr>
+		<td align='center' width='45'><font size='3'>",i,"</font></td>
+		<td align='center' width='70'>
+		",exp.id.lnk,"</td>
+		<td align='center' width='200'>
+		",exp.term.lnk,"</td>
+		<td align='center' width='45'><font size='3'>",exp.nr[i],"</font></td>
+		<td align='center' width='45'><font size='3'>",exp.total[i],"</font></td>
+		<td align='center' width='70'><font size='3'>",pop.hits[i],"</font></td>
+		<td align='center' width='70'><font size='3'>",pop.total[i],"</font></td>
+		<td align='center' width='70'><font size='3'>",format(term.p[i], digits = 3, scientific = TRUE),"</font></td>
+		<td align='center' width='100'><textarea rows='0' name='Genes",i,"3' cols='7'>",list.genes[i],"</textarea></td>
+		<td align='center' width='200'><select size='1' name='Genes",i,"4'>",list.names[i],"</select></td>
+		</tr>",sep="")
+		
+	
+	
+	write(list.terms, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotations.htm",sep=""), append = TRUE, sep = " ")
+
 	}
 		
-	data.clust <- data.frame("ID"=exp.id.lnk,"Term"=exp.term.lnk,"List.Hits"=exp.nr,"List.Total"=exp.total,"Population.Hits"=pop.hits,"Population.Total"=pop.total,"P.values"=term.p,"Hommel.adjusted"=term.hommel,"FDR"=term.fdr,"LocusLink.ID"=list.genes,"Genes"=list.names)
-	data.clust <- data.clust[order(data.clust[,7]),]
-		
-	columns <- c("ID","Term","List Hits","List Total","Population Hits","Population Total","P-values","Hommel adjusted","FDR Benjamini & Hochberg","LocusLink IDs","Genes")
-	write.table(data.clust,file=paste(wd,"/",results.dir,"/",taxoname," ",nom,".xls",sep=""),append=TRUE,quote=TRUE,sep="\t",eol="\n",dec=".",row.names=FALSE,col.names=columns,qmethod="double")
+	end.page <- paste("</table>
+		<p>
+		..........................................................................................................................</p>
+		<p>
+		This file was produced on ",date()," with <a target='_blank' href='http://corneliu.henegar.info/FunCluster.htm' style='text-decoration: none'>
+		<font size='3'>FunCluster 1.01</font></a> using GO and KEGG annotations updated on ",annot.date,".</p>
+		</body>
 
+		</html>",sep="")
+
+	write(end.page, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotations.htm",sep=""), append = TRUE, sep = " ")
+
+	
+	
 }else{
 	cat(paste("\n\t\tNo ",taxoname," ",nom," annotation results to save...",sep=""))
 }

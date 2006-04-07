@@ -2,8 +2,8 @@
           \alias{FunCluster}
           \title{Functional Profiling of cDNA Microarray Expression Data}
           \description{
-            FunCluster performs a functional analysis of microarray data based on Gene Ontology & KEGG 
-            annotations. FunCluster is designed to build functional classes of putatively co-regulated
+            FunCluster performs a functional analysis of microarray expression data based on Gene Ontology
+            & KEGG annotations. FunCluster is designed to build functional classes of putatively co-regulated
             biological processes through a specially designed clustering procedure relying on expression
             data and functional annotations.
           }
@@ -109,31 +109,26 @@
 	            		containing the expression level of that transcript in each of the available microarray samples. 
 	            		See test data and JBCB paper for more details.\cr
 	  
-	            The results of the FunCluster analysis of transcript expression data are stored as tab separated text files in 
+	            The results of the FunCluster analysis of transcript expression data are stored as HTML files in 
 	            		the "Results" subfolder of the working folder. For each type of available biological annotations 
 	            		and for each list of transcript expression data to be analyzed (one or two), FunCluster provides 
-	            		a ranked list with the significant functional clusters observed, stored within a separate text file. 
+	            		a ranked list with the significant functional clusters observed, stored within a separate file. 
 	            		Detailed findings on the terminological composition and transcript enrichment significance of the 
-	            		resulting functional clusters are provided. In order to correctly access results files the best 
-	            		approach is to use Microsoft Excel XP or later (English version) as these files were specifically
-	            		formatted for Excel use. Other tabular data processing software can also be used to read these files,
-	            		although accessibility will be less optimal. Some difficulties in correctly accessing results files
-	            		may be observed with older versions of Microsoft Excel (prior to XP version), as well as with Excel 
-	            		versions in other languages than English.}
+	            		resulting functional clusters are provided.}
           \references{
-          1. Cancello R, Henegar C, Viguerie N, Taleb S, Poitou C, Rouault C, Coupaye M, Pelloux V, Hugol D, Bouillot 
+          1. Henegar C, Cancello R, Rome S, Vidal H, Clement K, Zucker JD. Clustering biological annotations and gene 
+          		expression data to identify putatively co-regulated biological processes. J Bioinform Comput Biol.
+          		2006 Aug; 4(4) (in press).
+          
+          2. Cancello R, Henegar C, Viguerie N, Taleb S, Poitou C, Rouault C, Coupaye M, Pelloux V, Hugol D, Bouillot 
           		JL, Bouloumie A, Barbatelli G, Cinti S, Svensson PA, Barsh GS, Zucker JD, Basdevant A, Langin D,
           		Clement K. Reduction of macrophage infiltration and chemoattractant gene expression changes in 
           		white adipose tissue of morbidly obese subjects after surgery-induced weight loss. 
           		Diabetes 2005; 54(8):2277-86.
 
-          2. FunCluster website: \url{http://corneliu.henegar.info/FunCluster.htm}
+          3. FunCluster website: \url{http://corneliu.henegar.info/FunCluster.htm}
           }
-          \note{
-          This package is related to a paper submitted to the Journal of Bioinformatics and Computational Biology: 
-          Henegar C, Cancello R, Rome S, Vidal H, Clement K, Zucker JD. Clustering biological annotations and gene 
-          expression data to identify putatively co-regulated biological processes.
-          }
+          
           \seealso{
             \code{\link{cluster}, \link{annotations}}.
           }
