@@ -15,13 +15,13 @@ genes.lst <- NULL
 FunCluster <- function(wd="", org="HS", go.direct=FALSE, clusterm="cc", compare="common.correl.genes", 
 			corr.met="greedy", corr.th=0.85, two.lists=TRUE, restrict=FALSE, alpha=0.05, 
 			location=FALSE, details=FALSE){
-	
+
 	# "two.lists" means 2 lists of genes instead of one (i.e. UP & DOWN)
 	# "restrict" means restrict the enrichment calculus to a list of genes (in oposition with the whole genome by default)
-	
+
 	cat(paste("\n\tFunCluster started at: ",date(),sep=""))
 	cat(paste("\n\t\tUsing annotations updated on: ",annot.date,sep=""))
-	
+
 	if(wd != ""){setwd(wd)} # set working directory
 	# create results directory
 	results.dir <- paste("Results_",format(Sys.time(), "%Y_%b_%d_%H-%M-%S"),sep="")
@@ -44,16 +44,16 @@ FunCluster <- function(wd="", org="HS", go.direct=FALSE, clusterm="cc", compare=
 
 	if(restrict == TRUE){	# specifing a reference list of genes for the calculation of annotations enrichment
 		if(is.null(ref.list)){ref.list <- read.table(paste(wd,"/","ref.txt",sep=""),sep="\t")}
-		
+
 		ref.lst <- filter.genes(restrict=TRUE,ref.list=ref.list)
 		ref.list <- ref.lst$ref.list
-		
+
 		rm(ref.lst)
-		
+
 	}else{
 		ref.list <- NULL
 	}
-	
+
 	if(two.lists == TRUE){	# when 2 lists of genes are analysed in oposition (UP & DOWN)
 
 		if(is.null(up)){up <- read.table(paste(wd,"/","up.txt",sep=""),sep="\t")}	# genes UP
@@ -63,46 +63,46 @@ FunCluster <- function(wd="", org="HS", go.direct=FALSE, clusterm="cc", compare=
 		up <- up.down$up
 		down <- up.down$down
 		up.frame <- up.down$up.frame
-		
+
 		down.frame <- up.down$down.frame
-		
-		
+
+
 		if(compare == "common.correl.genes"){
 			up.correl <- gene.correl(up.frame,corr.th,method=corr.met,"UP")
-			
+
 			down.correl <- gene.correl(down.frame,corr.th,method=corr.met,"DOWN")
-			
+
 		}else{
 			up.correl <- NULL
 			down.correl <- NULL
 		}
-		
+
 		if(location == TRUE){
 			if(org == "HS"){locus.cyto <- HS.locus.cyto}
 			if(org == "MM"){locus.cyto <- MM.locus.cyto}
 			if(org == "SC"){locus.cyto <- SC.locus.cyto}
 			# LocusLink cytoband
-			
+
 			location.analysis(list.anal=up,ref.list=ref.list,nom="UP",cyto=locus.cyto,locus.name=locus.name)	# cytoband analysis
 			location.analysis(list.anal=down,ref.list=ref.list,nom="DOWN",cyto=locus.cyto,locus.name=locus.name)
 		}
-		
-	
+
+
 	}else{
 		if(is.null(genes.lst)){genes.lst <- read.table(paste(wd,"/","genes.txt",sep=""),sep="\t")}	# a unique list of genes
-		
+
 		genes <- filter.genes(genes.lst=genes.lst,two.lists=FALSE)
 		genes.lst <- genes$genes.lst
 		genes.frame <- genes$genes.frame
-		
-		
+
+
 		if(compare == "common.correl.genes"){
 			genes.correl <- gene.correl(genes.frame,corr.th,"LIST")
-			
+
 		}else{
 			genes.correl <- NULL
 		}
-		
+
 		if(location == TRUE){
 			if(org == "HS"){locus.cyto <- HS.locus.cyto}
 			if(org == "MM"){locus.cyto <- MM.locus.cyto}
@@ -111,18 +111,18 @@ FunCluster <- function(wd="", org="HS", go.direct=FALSE, clusterm="cc", compare=
 			location.analysis(list.anal=genes.lst,ref.list=ref.list,nom="list",cyto=locus.cyto,locus.name=locus.name)	# cytoband analysis	
 		}
 	}
-	
-	
+
+
 
 # KEGG Annotations
-	
+
 	terms.name <- KEGG.terms.name	# KEGG structure
 	# KEGG annotations file
 	if(org == "HS"){file.annot <- HS.KEGG.file.annot}
 	if(org == "MM"){file.annot <- MM.KEGG.file.annot}
 	if(org == "SC"){file.annot <- SC.KEGG.file.annot}
 	taxoname <- "KEGG"
-	
+
 
 	if(two.lists == TRUE){
 		main.loop(file.annot=file.annot,taxoname=taxoname,terms.name=terms.name,up=up,down=down,
@@ -139,9 +139,9 @@ FunCluster <- function(wd="", org="HS", go.direct=FALSE, clusterm="cc", compare=
 
 	go.name <- c("GO Biological Process","GO Cellular Component","GO Molecular Function") # names of GO branches
 	terms.name <- GO.terms.name # GO structure  
-	
+
 	for(i in 1:3){
-	
+
 	# GO annotations file HS
 		if(org == "HS" && godir == "DIR" && i == 1){file.annot <- HS.GO.DIR.BP.file.annot}
 		if(org == "HS" && godir == "DIR" && i == 2){file.annot <- HS.GO.DIR.CC.file.annot}
@@ -178,7 +178,7 @@ FunCluster <- function(wd="", org="HS", go.direct=FALSE, clusterm="cc", compare=
 		}		
 	}
 
-	
+
 	cat(paste("\n\tEnd  of treatment at: ",date(),"\n",sep=""))	
 	rm()
 
@@ -198,16 +198,16 @@ main.loop <- function(file.annot,taxoname,terms.name,up=NULL,down=NULL,results.d
 			genes.lst=NULL,genes.frame=NULL,genes.correl=NULL,restrict=FALSE,ref.list=NULL,details){
 
 	annotations <- preliminary(file.annot=file.annot,taxoname=taxoname,restrict=restrict,ref.list=ref.list)	# preliminary treatment of annotations file
-	
-	
+
+
 if(!is.null(up) && !is.null(down) && is.null(genes.lst) && !is.null(annotations)){
 	up.data <- annotate(annotations,up,"UP",terms.name,taxoname)
 	down.data <- annotate(annotations,down,"DOWN",terms.name,taxoname)
-	
+
 
 	up.data <- pterm(up.data,taxoname,"UP")	
 	down.data <- pterm(down.data,taxoname,"DOWN")		
-	
+
 	if(details == TRUE){
 		resterm(up.data,taxoname,"UP",locus.name,results.dir=results.dir)
 		resterm(down.data,taxoname,"DOWN",locus.name,results.dir=results.dir)
@@ -216,65 +216,65 @@ if(!is.null(up) && !is.null(down) && is.null(genes.lst) && !is.null(annotations)
 	if(clusterm == "cs"){
 		c.up <- clusterm.cs(up.data,taxoname,"UP",alpha,compare,up.frame,up.correl)
 		c.down <- clusterm.cs(down.data,taxoname,"DOWN",alpha,compare,down.frame,down.correl)
-			
+
 		c.up <- cluster.c(c.up,up.data,annotations,taxoname,"UP")
 		c.down <- cluster.c(c.down,down.data,annotations,taxoname,"DOWN")
-		
+
 		c.up <- pclust(up.data,c.up,annotations,taxoname,"UP")		
 		c.down <- pclust(down.data,c.down,annotations,taxoname,"DOWN")		
-	
+
 		resclust(up.data,c.up,taxoname,"UP","CS",locus.name,results.dir=results.dir)
 		resclust(down.data,c.down,taxoname,"DOWN","CS",locus.name,results.dir=results.dir)
 	}else if(clusterm == "cc"){
 		c.up <- clusterm.cc(up.data,taxoname,"UP",alpha,compare,up.frame,up.correl)
 		c.down <- clusterm.cc(down.data,taxoname,"DOWN",alpha,compare,down.frame,down.correl)
-			
+
 		c.up <- cluster.c(c.up,up.data,annotations,taxoname,"UP")
 		c.down <- cluster.c(c.down,down.data,annotations,taxoname,"DOWN")
-					
+
 		c.up <- pclust(up.data,c.up,annotations,taxoname,"UP")		
 		c.down <- pclust(down.data,c.down,annotations,taxoname,"DOWN")		
-				
+
 		resclust(up.data,c.up,taxoname,"UP","CC",locus.name,results.dir=results.dir)
 		resclust(down.data,c.down,taxoname,"DOWN","CC",locus.name,results.dir=results.dir)
 	}
-	
+
 }else if(!is.null(genes.lst) && !is.null(annotations)){
-	
+
 
 	genes.data <- annotate(annotations,genes.lst,"LIST",terms.name,taxoname)
 	genes.data <- pterm(genes.data,taxoname,"LIST")
-	
-		
-	
+
+
+
 	if(details == TRUE){
 		resterm(genes.data,taxoname,"LIST",locus.name,results.dir=results.dir)
 	}
-	
+
 	if(clusterm == "cs"){
 		c.genes <- clusterm.cs(genes.data,taxoname,"LIST",alpha,compare,genes.frame,genes.correl)
-			
+
 		c.genes <- cluster.c(c.genes,genes.data,annotations,taxoname,"LIST")
-		
+
 		c.genes <- pclust(genes.data,c.genes,annotations,taxoname,"LIST")		
-	
+
 		resclust(genes.data,c.genes,taxoname,"LIST","CS",locus.name,results.dir=results.dir)
-	
+
 
 	}else if(clusterm == "cc"){
 		c.genes <- clusterm.cc(genes.data,taxoname,"LIST",alpha,compare,genes.frame,genes.correl)
-			
+
 		c.genes <- cluster.c(c.genes,genes.data,annotations,taxoname,"LIST")
-					
+
 		c.genes <- pclust(genes.data,c.genes,annotations,taxoname,"LIST")		
-				
+
 		resclust(genes.data,c.genes,taxoname,"LIST","CC",locus.name,results.dir=results.dir)
 
 
 	}
 }
-	
-	
+
+
 	cat(paste("\n\t",taxoname," annotations treatment finished... ",date(),sep=""))
 	rm()
 
@@ -291,17 +291,17 @@ if(!is.null(up) && !is.null(down) && is.null(genes.lst) && !is.null(annotations)
 
 
 filter.genes <- function(up=NULL,down=NULL,genes.lst=NULL,two.lists=TRUE,restrict=FALSE,ref.list=NULL){
-	
+
 	if(restrict == TRUE && !is.null(ref.list)){
-		
+
 		cat(paste("\n\tFiltering reference list started... ",format(Sys.time(), "%X"),sep=""))
-		
+
 		genes.locus <- NULL
-		
+
 		for(i in 1:length(ref.list[,1])){
 			if(regexpr(";",as.character(ref.list[i,1])) != -1){
 				x <- strsplit(gsub(" ","",as.character(ref.list[i,1])),";")[[1]]
-							
+
 				for(j in 1:length(x)){
 					genes.locus <- c(genes.locus,x[j])				
 				}
@@ -309,11 +309,11 @@ filter.genes <- function(up=NULL,down=NULL,genes.lst=NULL,two.lists=TRUE,restric
 				genes.locus <- c(genes.locus,as.character(ref.list[i,1]))				
 			}		
 		}
-		
+
 		genes.locus <- levels(as.factor(genes.locus))
 		genes.locus <- genes.locus[genes.locus != ""]
 		names(genes.locus) <- genes.locus
-		
+
 		return(list(ref.list=genes.locus))
 	}
 
@@ -323,14 +323,14 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 
 	cat(paste("\n\tFiltering genes list started... ",format(Sys.time(), "%X"),sep=""))
 
-	
+
 	genes.matrix <- NULL
 	genes.locus <- NULL
-	
+
 	for(i in 1:length(genes.lst[,1])){
 		if(regexpr(";",as.character(genes.lst[i,1])) != -1){
 			x <- strsplit(gsub(" ","",as.character(genes.lst[i,1])),";")[[1]]
-						
+
 			for(j in 1:length(x)){
 				genes.locus <- c(genes.locus,x[j])				
 				genes.matrix <- rbind(genes.matrix,as.double(genes.lst[i,2:length(genes.lst)]))	
@@ -340,47 +340,47 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 			genes.matrix <- rbind(genes.matrix,as.double(genes.lst[i,2:length(genes.lst)]))
 		}		
 	}
-	
+
 
 	names(genes.matrix) <- 1:length(genes.matrix)
 
 	genes.frame <- data.frame(genes.locus,genes.matrix)
-	
+
 	genes.locus <- levels(as.factor(genes.locus))
-	
+
 	genes.frame.new <- NULL
-	
+
 	for(i in 1:length(genes.locus)){
-		
+
 		datas <- genes.frame[genes.frame[,1] == genes.locus[i],][,2:length(genes.frame)]
-		
+
 		if(is.vector(datas) != TRUE){
 			datas <- mean(datas)
 		}else{
 			datas <- as.double(datas)
 		}
-		
+
 		genes.frame.new <- rbind(genes.frame.new,c(genes.locus[i],datas))
-		
+
 	}
-	
+
 	genes.frame <- as.data.frame(genes.frame.new)
-	
+
 	return(list(genes.lst=genes.locus,genes.frame=genes.frame))
 
 
 
 }else if(two.lists == TRUE && !is.null(up) && !is.null(down)){
-	
+
 	cat(paste("\n\tFiltering genes UP/DOWN started... ",format(Sys.time(), "%X"),sep=""))
-	
+
 	up.matrix <- NULL
 	up.locus <- NULL
-	
+
 	for(i in 1:length(up[,1])){
 		if(regexpr(";",as.character(up[i,1])) != -1){
 			x <- strsplit(gsub(" ","",as.character(up[i,1])),";")[[1]]
-						
+
 			for(j in 1:length(x)){
 				up.locus <- c(up.locus,x[j])				
 				up.matrix <- rbind(up.matrix,as.double(up[i,2:length(up)]))	
@@ -390,20 +390,20 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 			up.matrix <- rbind(up.matrix,as.double(up[i,2:length(up)]))
 		}		
 	}
-	
+
 
 	names(up.matrix) <- 1:length(up.matrix)
 
 	up.frame <- data.frame(up.locus,up.matrix)
 
-	
+
 	down.matrix <- NULL
 	down.locus <- NULL
-		
+
 	for(i in 1:length(down[,1])){
 		if(regexpr(";",as.character(down[i,1])) != -1){
 			x <- strsplit(gsub(" ","",as.character(down[i,1])),";")[[1]]
-							
+
 			for(j in 1:length(x)){
 				down.locus <- c(down.locus,x[j])				
 				down.matrix <- rbind(down.matrix,as.double(down[i,2:length(down)]))	
@@ -413,21 +413,21 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 			down.matrix <- rbind(down.matrix,as.double(down[i,2:length(down)]))
 		}		
 	}
-		
+
 	names(down.matrix) <- 1:length(down.matrix)	
 
 	down.frame <- data.frame(down.locus,down.matrix)
-	
 
-	
+
+
 
 	up.locus <- levels(as.factor(up.locus))
 	names(up.locus) <- up.locus
 	down.locus <- levels(as.factor(down.locus))
 	names(down.locus) <- down.locus
-	
+
 	x <- sort(up.locus[down.locus])
-        
+
 	if(length(x) > 0){
 	for(i in 1:length(x)){
 		up.frame <- up.frame[up.frame[,1] != x[i],]
@@ -435,71 +435,71 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 		down.frame <- down.frame[down.frame[,1] != x[i],]
 		down.locus <- down.locus[down.locus != x[i]]
 	}}
-	
+
 	rm(x)
-	
+
 	up.matrix <- NULL
-	
+
 	for(i in 1:length(up.locus)){
 		x <- up.frame[up.frame[,1] == up.locus[i],2:ncol(up.frame)]
 		x <- mean(x)
 		up.matrix <- rbind(up.matrix,x)		
 	}
-	
+
 	up.frame <- data.frame(up.locus,up.matrix)
 
 	up.locus <- levels(as.factor(up.locus))
-		
+
 		up.frame.new <- NULL
-		
+
 		for(i in 1:length(up.locus)){
-			
+
 			datas <- up.frame[up.frame[,1] == up.locus[i],][,2:ncol(up.frame)]
-			
+
 			if(is.vector(datas) != TRUE){
 				datas <- mean(datas)
 			}else{
 				datas <- as.double(datas)
 			}			
-			
+
 			up.frame.new <- rbind(up.frame.new,c(up.locus[i],datas))
-			
+
 		}
-		
+
 	up.frame <- as.data.frame(up.frame.new)
-	
-	
+
+
 
 	down.matrix <- NULL
-		
+
 	for(i in 1:length(down.locus)){
 		x <- down.frame[down.frame[,1] == down.locus[i],2:ncol(down.frame)]
 		x <- mean(x)
 		down.matrix <- rbind(down.matrix,x)		
 	}
-		
+
 	down.frame <- data.frame(down.locus,down.matrix)
-	
+
 	down.locus <- levels(as.factor(down.locus))
-		
+
 		down.frame.new <- NULL
-		
+
 		for(i in 1:length(down.locus)){
-			
+
 			datas <- down.frame[down.frame[,1] == down.locus[i],][,2:ncol(down.frame)]
-			
+
 			if(is.vector(datas) != TRUE){
 				datas <- mean(datas)
 			}else{
 				datas <- as.double(datas)
 			}
-			
+
 			down.frame.new <- rbind(down.frame.new,c(down.locus[i],datas))
-			
+
 		}
-		
+
 	down.frame <- as.data.frame(down.frame.new)
-	
+
 
 	return(list(up=up.locus,down=down.locus,up.frame=up.frame,down.frame=down.frame))
 }
@@ -521,76 +521,76 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 #############################################################################################
 
 location.analysis <- function(list.anal,ref.list=NULL,nom,cyto,locus.name){
-	
+
 	cat(paste("\n\tLocation enrichment analysis of genes ",nom," started... ",format(Sys.time(), "%X"),sep=""))
-	
+
 	if(!is.null(ref.list)){	# filtering location data by reference list
 		x <- NULL
-		
+
 		for(i in 1:length(ref.list)){
 			if(length(cyto[cyto[,1] == as.vector(ref.list[i]),][1]) > 0){
 				x <- rbind(x,cyto[cyto[,1] == as.vector(ref.list[i]),])
 			}
 		}
-		
+
 		cyto <- x
 		rm(x)	
 	}
-	
+
 	if(length(cyto[,1]) > 0){
-		
+
 		a <- as.factor(as.character(cyto[,1]))
 		genes.cyto <- as.matrix(levels(a))	# list of all genes with cytoband information available
 		genes.total <- length(genes.cyto[,1])	# number of all genes with cytoband information available
 		rm(a)	
-		
-			
-		
+
+
+
 		a <- as.factor(as.character(cyto[,2]))
 		chromo.id <- as.matrix(levels(a))	# list of IDs for the chromosomes
 		rm(a)
-		
+
 		a <- as.factor(as.character(cyto[,3]))
 		cyto.id <- as.matrix(levels(a))	# list of IDs for the cytobands
 		rm(a)
-			
+
 		chromo.genes.nr <- matrix(0,length(chromo.id[,1]),1)	# list of number of genes located on each chromosome
 		chromo.genes.list <- as.list(matrix(NA,length(chromo.id[,1]),1))	# list of vectors of genes located on each chromosome
-				
-		
+
+
 		for(i in 1:length(chromo.id)){
 			chromo.genes.list[[i]] <- cyto[,1][cyto[,2] == chromo.id[i]]
 			chromo.genes.nr[i] <- length(chromo.genes.list[[i]])
 		}
-		
+
 		cyto.genes.nr <- matrix(0,length(cyto.id[,1]),1)	# list of number of genes located on each cytoband
 		cyto.genes.list <- as.list(matrix(NA,length(cyto.id[,1]),1))	# list of vectors of genes located on each cytoband
-						
-				
+
+
 		for(i in 1:length(cyto.id)){
 			cyto.genes.list[[i]] <- cyto[,1][cyto[,3] == cyto.id[i]]
 			cyto.genes.nr[i] <- length(cyto.genes.list[[i]])
 		}
-				
+
 		# returning chromosome and cytoband location data
 		chromo.data <- list(annot.id=chromo.id, genes.nr=chromo.genes.nr, genes.total=genes.total, genes.list=chromo.genes.list, genes.annot=genes.cyto)
 		cyto.data <- list(annot.id=cyto.id, genes.nr=cyto.genes.nr, genes.total=genes.total, genes.list=cyto.genes.list, genes.annot=genes.cyto)
-		
+
 		chromo.results <- annotate(annotations=chromo.data,exp.genes=list.anal,nom=nom,terms.name=cbind(chromo.id,chromo.id),taxoname="Chromosome")
 		cyto.results <- annotate(annotations=cyto.data,exp.genes=list.anal,nom=nom,terms.name=cbind(cyto.id,cyto.id),taxoname="Cytoband")
-		
+
 		chromo.results <- pterm(exp.data=chromo.results,taxoname="Chromosome",nom=nom)
 		cyto.results <- pterm(exp.data=cyto.results,taxoname="Cytoband",nom=nom)
-		
+
 		resterm(exp.data=chromo.results,taxoname="Chromosome",nom=nom,locus.name=locus.name)
 		resterm(exp.data=cyto.results,taxoname="Cytoband",nom=nom,locus.name=locus.name)
-	
-	
+
+
 	}else{
 		cat(paste("\n\t\tCytoband enrichment analysis impossible...",sep=""))
-		
+
 	}
-	
+
 }
 
 
@@ -606,50 +606,50 @@ location.analysis <- function(list.anal,ref.list=NULL,nom,cyto,locus.name){
 preliminary <- function(file.annot,taxoname,restrict=FALSE,ref.list=NULL){
 
 	cat(paste("\n\tPreliminary treatment of ",taxoname," annotations started... ",format(Sys.time(), "%X"),sep=""))
-	
+
 	if(restrict == TRUE && !is.null(ref.list)){
-		
+
 		x <- NULL
-		
+
 		for(i in 1:length(ref.list)){
 			if(length(file.annot[file.annot[,1] == as.vector(ref.list[i]),][,1])){
 				x <- rbind(x,file.annot[file.annot[,1] == as.vector(ref.list[i]),])
 			}
 		}
-		
+
 		file.annot <- x
 		rm(x)
 	}	
-	
+
 	if(length(file.annot[,1]) > 0){
-	
+
 		a <- as.factor(as.character(file.annot[,1]))
 		genes.annot <- as.matrix(levels(a))	# list of all annotated genes within the considered taxonomical system
 		genes.total <- length(genes.annot[,1])	# number of all annotated genes
 		rm(a)	
 
-	
+
 
 		a <- as.factor(as.character(file.annot[,2]))
 		annot.id <- as.matrix(levels(a))	# list of IDs for the terms annotating genes
 		rm(a)
-	
+
 		genes.nr <- matrix(0,length(annot.id[,1]),1)	# list of number of genes annotated by each term
 		genes.list <- as.list(matrix(NA,length(annot.id[,1]),1))	# list of vectors of genes annotated by each term
-		
+
 
 		for(i in 1:length(annot.id)){
 			genes.list[[i]] <- file.annot[,1][file.annot[,2] == annot.id[i]]
 			genes.nr[i] <- length(genes.list[[i]])
 		}
-		
+
 	# returning annotations data
 		annotations <- list(annot.id=annot.id, genes.nr=genes.nr, genes.total=genes.total, genes.list=genes.list, genes.annot=genes.annot)
 	}else{
 		annotations <- NULL
 		cat(paste("\n\t\tNo ",taxoname," annotations are available...",sep=""))
 	}
-	
+
 
 	return(annotations)
 	rm()
@@ -668,21 +668,21 @@ preliminary <- function(file.annot,taxoname,restrict=FALSE,ref.list=NULL){
 annotate <- function(annotations,exp.genes,nom,terms.name,taxoname){
 
 	cat(paste("\n\t",taxoname," annotation of genes ", nom," started... ",format(Sys.time(), "%X"),sep=""))
-	
+
 	# getting annotation data
 	annot.id <- annotations$annot.id
 	genes.nr <- annotations$genes.nr
 	genes.total <- annotations$genes.total
 	genes.list <- annotations$genes.list
 	genes.annot <- annotations$genes.annot	
-	
+
 	exp.genes <- as.matrix(as.character(as.matrix(exp.genes)))	# getting experience genes
 	a <- matrix(0,length(exp.genes),1)	# calculating the number of annotated genes among experience genes
 
 	for(i in 1:length(exp.genes)){
 		a[i] <- length(genes.annot[,1][genes.annot[,1] == exp.genes[i]])
 	}
-	
+
 	exp.total <- sum(a)	# number of experience genes annotated
 	rm(a)
 
@@ -690,19 +690,19 @@ annotate <- function(annotations,exp.genes,nom,terms.name,taxoname){
 	exp.id <- as.matrix("")	# term IDs annotating experience genes
 	exp.nr <- as.matrix(0)	# number of annotated genes by term (among experience ones)
 	exp.list <- list(NULL)	# list of annotated genes by term (among experience ones)
-	
+
 	k <- 0
-	
+
 	for(i in 1:length(annot.id)){	# selecting a term ID
-		
+
 		# getting annotated genes list for the selected term
 		a <- data.frame(as.character(genes.list[[i]]),matrix(0,length(genes.list[[i]]),1))
-		
+
 		# testing for annotated genes among experience ones
 		for(j in 1:length(a[,1])){
 			a[j,2] <- length(exp.genes[exp.genes == a[j,1]])		
 		}
-	
+
 		if(sum(a[,2]) > 0){	# if experience genes were founded
 			k + 1 -> k
 			if(k == 1){	# for the first term
@@ -716,12 +716,12 @@ annotate <- function(annotations,exp.genes,nom,terms.name,taxoname){
 			}
 		}
 	}
-	
+
 	rm(k,a)
-	
+
 	if(exp.id[1,1] != ""){	# if GO annotations were found...
 		exp.term <- matrix("",length(exp.id),1)	# list of terms corresponding to IDs selected previously (annotating experience genes)
-	
+
 		for(i in 1:length(exp.id)){
 			if(length(terms.name[,2][terms.name[,1] == exp.id[i]]) > 0){
 				exp.term[i,1] <- as.character(terms.name[,2][terms.name[,1] == exp.id[i]])
@@ -729,25 +729,25 @@ annotate <- function(annotations,exp.genes,nom,terms.name,taxoname){
 				exp.term[i,1] <- "---"	# avoiding taxonomy versions incompatibility
 			}
 		}
-	
+
 		exp.total <- matrix(exp.total,length(exp.id),1)
 
 		x <- data.frame(as.character(annot.id),genes.nr)
-			
+
 		pop.hits <- matrix(0,length(exp.id),1)	# population genes annotated by each term
 		pop.total <- matrix(genes.total,length(exp.id),1)	# total number of genes annotated among population genes
-		
+
 		for(i in 1:length(exp.id)){
 			pop.hits[i] <- x[,2][x[,1] == exp.id[i]]
 		}
-	
-	
+
+
 		exp.data <- list(exp.id=exp.id, exp.term=exp.term, exp.nr=exp.nr, exp.total=exp.total, pop.hits=pop.hits, pop.total=pop.total, exp.list=exp.list)
 	}else{	# if no GO annotations were founs...
 		exp.data <- NULL
 		cat(paste("\n\t\tNo annotations were detected for the genes ", nom, "...", sep=""))
 	}
-	
+
 
 	return(exp.data)
 	rm()
@@ -764,31 +764,31 @@ annotate <- function(annotations,exp.genes,nom,terms.name,taxoname){
 
 
 annot.list <- function(ll,file.annot,taxoname,terms.name,locus.name){
-	
+
 	cat(paste("\n\t",taxoname," annotation of genes started...\n",sep=""))
-	
+
 	ll <- as.character(ll)
 	annot.matrix <- matrix("",length(ll),2)
 	annot.matrix <- cbind(ll,annot.matrix)
-	
+
 	for(i in 1:length(ll)){
 		annot.gene <- file.annot[file.annot[,1] == ll[i],]
-		
+
 		if(length(annot.gene[,1]) > 0){
 			annot.string <- ""
-			
+
 			for(j in 1:length(annot.gene[,2])){
 				annot.string <- paste(annot.string,terms.name[terms.name[,1]==as.character(annot.gene[j,2]),2],"; ",sep="")
 			}
-			
-			
+
+
 			annot.matrix[i,3] <- annot.string
-			
+
 		}
 		annot.matrix[i,2] <- locus.name[locus.name[,1]==ll[i],2]
-	
+
 	}
-	
+
 	return(annot.matrix)
 
 }
@@ -805,11 +805,11 @@ annot.list <- function(ll,file.annot,taxoname,terms.name,locus.name){
 
 
 fdr.adjust <- function(pvalues, qlevel=0.05, method="original", adjust=NULL){	
-	
+
 
 	x.fdr <- fdr(pvals=pvalues,qlevel=qlevel,method=method,adjustment.method=adjust)	 
 	y.fdr <- as.vector(matrix(1,length(pvalues),1))
-			
+
 	if(!is.null(x.fdr)){
 		for(i in 1:length(x.fdr)){ y.fdr[x.fdr[i]]<-pvalues[x.fdr[i]]}
 	}
@@ -832,7 +832,7 @@ pterm <- function(exp.data,taxoname,nom){
 	cat(paste("\n\t",taxoname," terms P-values calculation and adjustment for genes ",nom, " started... ",format(Sys.time(), "%X"),sep=""))
 	if(!is.null(exp.data)){
 	# getting experience data
-		
+
 		exp.id <- exp.data$exp.id
 		exp.term <- exp.data$exp.term
 		exp.nr <- exp.data$exp.nr
@@ -840,23 +840,23 @@ pterm <- function(exp.data,taxoname,nom){
 		pop.hits <- exp.data$pop.hits
 		pop.total <- exp.data$pop.total
 		exp.list <- exp.data$exp.list
-	
-	
+
+
 		term.p <- pvalues(data.frame(exp.nr,exp.total,pop.hits,pop.total))	# calculating p-values
 		term.hommel <- p.adjust(term.p,method="hommel",n=length(term.p))	# Hommel adjusted p-values
 		#term.fdr <- p.adjust(term.p,method="fdr",n=length(term.p))	# FDR (Benjamini & Hochberg) adjusted 
 		term.fdr <- fdr.adjust(pvalues=term.p)	# FDR Paciorek
-	
-	
+
+
 		exp.data <- list(exp.id=exp.id, exp.term=exp.term, exp.nr=exp.nr, exp.total=exp.total, pop.hits=pop.hits, pop.total=pop.total, exp.list=exp.list, term.p=term.p, term.hommel=term.hommel, term.fdr=term.fdr)
-		
+
 	}else{
 		exp.data <-NULL
 		cat("\n\t\tNo p-values were calculated...")
 	}
 	return(exp.data)
 	rm()
-	
+
 }
 
 
@@ -869,40 +869,40 @@ pterm <- function(exp.data,taxoname,nom){
 #############################################################################################
 
 gene.correl <- function(gene.frame,corr.th,method,nom){
-	
+
 	cat(paste("\n\tClustering genes ", nom," by correlating expression profiles started... ",format(Sys.time(), "%X"),sep=""))
-	
-	
+
+
 	genes.correl <- as.list(NULL)
-	
+
 	w <- gene.frame
-	
+
 
 	if(method == "hierarchical"){
-	
+
 		x <- as.character(w[,1])
 
 		y <- w[,2:ncol(w)]
 		rownames(y) <- x
-		
+
 		y.corr <- rcorr(t(y),type="spearman")$r
 		#cat(paste("\n\t\tCorrelation matrix computed... ",format(Sys.time(), "%X"),sep=""))
 		y.dist <- as.dist(1 - y.corr)
 		#hc <- agnes(y.dist,method = "ave")
 		hc <- hclust(y.dist, method = "ave")
 		sil.hc <- as.vector(NULL)
-		
+
 		for(i in 2:(nrow(y.corr)-1)){ 
     		# cut the tree 
     			memb <- cutree(hc, k = i)
     			sil <- silhouette(memb, y.dist)
     			sil.hc <- c(sil.hc, mean(summary(sil)$clus.avg.width))
   		}
-	
+
 		names(sil.hc) <- 2:(length(x)-1)
-	
+
 		best.index <- as.numeric(names(sil.hc[sil.hc == max(sil.hc)]))
-	
+
 		best.partition <- cutree(hc, k = best.index)
 		#sil <- silhouette(best.partition, y.dist)
 		#sil.part <- mean(summary(sil)$clus.avg.width)
@@ -915,15 +915,15 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 			genes.correl[[length(genes.correl) + 1]] <- as.character(names(best.partition[best.partition == i]))
 		}
 	}else if(method == "hgreedy"){
-	
+
 		x <- as.character(w[,1])
 
 		y <- w[,2:ncol(w)]
 		rownames(y) <- x
-		
+
 		y.corr <- rcorr(t(y),type="spearman")$r
 		#cat(paste("\n\t\tCorrelation matrix computed... ",format(Sys.time(), "%X"),sep=""))
-		
+
 		genes.ok <- as.vector(NULL)
 		for(i in 1:ncol(y.corr)){
 			z <- y.corr[,i][names(y.corr[,i])!= x[i]]
@@ -935,18 +935,18 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 		#hc <- agnes(y.dist,method = "ave")
 		hc <- hclust(y.dist, method = "ave")
 		sil.hc <- as.vector(NULL)
-		
+
 		for(i in 2:(nrow(y.corr)-1)){ 
     		# cut the tree 
     			memb <- cutree(hc, k = i)
     			sil <- silhouette(memb, y.dist)
     			sil.hc <- c(sil.hc, mean(summary(sil)$clus.avg.width))
   		}
-	
+
 		names(sil.hc) <- 2:(length(x)-1)
-	
+
 		best.index <- as.numeric(names(sil.hc[sil.hc == max(sil.hc)]))
-	
+
 		best.partition <- cutree(hc, k = best.index)
 		#sil <- silhouette(best.partition, y.dist)
 		#sil.part <- mean(summary(sil)$clus.avg.width)
@@ -960,20 +960,20 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 		}
 
 	}else if(method == "greedy"){
-		
+
 		w.init <- w
 		x <- as.character(w[,1])
-		
+
 		y <- w[,2:ncol(w)]
 		rownames(y) <- x
-				
+
 		y.corr <- rcorr(t(y),type="spearman")$r
-		
+
 		rownames(w) <- x
 		rm(x)
 
 		while(!is.null(w) && nrow(w) > 0){
-		
+
 		if(nrow(w)>1){
 			x <- rownames(w)[1]
 			y <- y.corr[,colnames(y.corr) == x]
@@ -981,29 +981,29 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 			x <- rownames(w)[1]
 			y <- y.corr
 		}
-			
-		
+
+
 		if(length(y[y >= corr.th]) > 1){
 			y <- y[y >= corr.th]
 			z <- names(y)
-			
-			
+
+
 			genes.correl[[length(genes.correl) + 1]] <- z
 			#cat(paste("\n\t\tz: ",length(z),sep=""))
 			#cat(paste("\n\t\ty.corr: ",nrow(y.corr),sep=""))
 			#z <<- z
 			#y.corr <<- y.corr
-			
+
 			w <- w[!(rownames(w) %in%  z),]
 			y.corr <- y.corr[!(rownames(y.corr) %in%  z),!(colnames(y.corr) %in%  z)]
-				
-			
-			
-			
+
+
+
+
 		}else{
 			genes.correl[[length(genes.correl) + 1]] <- x
-			
-			
+
+
 			if(nrow(w) > 1){
 				w <- w[rownames(w) != x,]
 				y.corr <- y.corr[!(rownames(y.corr) %in% x),!(colnames(y.corr) %in% x)]
@@ -1011,13 +1011,13 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 				w <- NULL
 				y.corr <- NULL
 			}
-			
+
 		}}
-	
-	
-		
-		
-	
+
+
+
+
+
 		#best.partition <- as.vector(NULL)
 		#j <- 1
 		#for(i in 1:length(genes.correl)){
@@ -1028,24 +1028,24 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 		#		j <- j+1
 		#	}
 		#}
-		
+
 		#w.init -> w
 		#x <- as.character(w[,1])
 
 		#y <- w[,2:ncol(w)]
 		#rownames(y) <- x
-		
+
 		#y.corr <- rcorr(t(y),type="spearman")$r
 		#cat(paste("\n\t\tCorrelation matrix computed... ",format(Sys.time(), "%X"),sep=""))
 		#y.corr <- y.corr[rownames(y.corr) %in% names(best.partition),colnames(y.corr) %in% names(best.partition)]
-		
+
 		#save(genes.correl,y.corr,best.partition,file=paste("clusters_G_",corr.th,"_",nom,".RData",sep=""))
 	}
-	
-	
+
+
 	return(genes.correl)
 	rm()
-	
+
 }
 
 
@@ -1059,46 +1059,46 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 #############################################################################################
 
 term.compare <- function(term1,term2,gene.frame,exp.total,compare,genes.correl){
-	
+
 	result <- NA	# the p-value to return
 
 	if(compare == "common.genes"){
-		
+
 		names(term1) <- term1
 		names(term2) <- term2
-		
+
 		z <- length(sort(term1[term2]))		
-		
+
 		if(z > 0){
 			result <- pvalues(data.frame(z,length(term1),length(term2),exp.total))
 		}
-		
+
 		rm(z)		
-		
+
 	}else if(compare == "correl.mean.exp"){
-		
+
 		x <- mean(gene.frame[term1,2:length(gene.frame)],na.rm=TRUE)
 		y <- mean(gene.frame[term2,2:length(gene.frame)],na.rm=TRUE)
-		
+
 		if(suppressWarnings(cor.test(x,y,alternative="greater",method="spearman")[[4]] >= 0.8)){
-		
+
 			suppressWarnings(result <- cor.test(x,y,alternative="greater",method="spearman")[[3]])
-		
+
 		}
-		
+
 		rm(x,y)
-		
+
 	}else if(compare == "common.correl.genes"){
-		
+
 		n <- 0
 		a <- length(term1)
 		b <- length(term2)
-		
+
 		x <- term1
 		names(x) <- x
 		y <- term2
 		names(y) <- y
-		
+
 		if(length(sort(x[y])) > 0){
 			n <- length(sort(x[y]))
 			z <- sort(x[y])
@@ -1107,30 +1107,30 @@ term.compare <- function(term1,term2,gene.frame,exp.total,compare,genes.correl){
 				term2 <- term2[term2 != z[i]]
 			}
 		}
-		
+
 		rm(x,y)	#
-		
-			
+
+
 		if(length(genes.correl) > 0){	# avoid incorrelable genes with 0 gene clusters
 			for(i in 1:length(genes.correl)){
 				z <- genes.correl[[i]]
 				names(z) <- z
 				x <- sort(z[term1])
 				y <- sort(z[term2])
-			
+
 				if(length(x) > 0 & length(y) > 0){
 					m <- min(length(x),length(y))
 					n <- n + m
 				}			
 			}
 		}
-		
+
 		if(n > 0){
 			result <- pvalues(data.frame(n,a,b,exp.total))
 		}
-		
+
 	}
-	
+
 	return(result)
 	rm()
 }
@@ -1145,22 +1145,22 @@ term.compare <- function(term1,term2,gene.frame,exp.total,compare,genes.correl){
 #############################################################################################
 
 clusterm.cc <- function(exp.data,taxoname,nom,alpha,compare,gene.frame,genes.correl){
-	
+
 	cat(paste("\n\t",taxoname," annotation concomitent clustering of genes ", nom," started... ",format(Sys.time(), "%X"),sep=""))
-	
+
 if(!is.null(exp.data)){	# 
-	
+
 	v <- as.list(NULL)
-				
+
 	for(i in 1:length(genes.correl)){
 		if(length(genes.correl[[i]]) > 1){
 			v[[length(v) + 1]] <- genes.correl[[i]]
 		}
 	}
-			
+
 	genes.correl <- v
 	rm(v)
-	
+
 	exp.id <- exp.data$exp.id
 	names(exp.id) <- exp.id
 	exp.term <- exp.data$exp.term
@@ -1169,15 +1169,15 @@ if(!is.null(exp.data)){	#
 	names(term.p) <- exp.id
 	exp.list <- exp.data$exp.list
 	names(exp.list) <- exp.id
-	
+
 
 	exp.id <- exp.id[order(term.p)]
 	exp.term <- exp.term[order(term.p)]
 	exp.list <- exp.list[order(term.p)]
 	term.p <- sort(term.p)
-	
+
 	exp.total <- exp.data$exp.total[1]
-	
+
 # p-values term selection
 
 	if(alpha != 1){
@@ -1186,7 +1186,7 @@ if(!is.null(exp.data)){	#
 		exp.term <- exp.term[names(term.p)]
 		exp.list <- exp.list[names(term.p)]		
 	}
-	
+
 # starting term clustering
 
 	id.cluster <- as.list(NULL)
@@ -1194,89 +1194,89 @@ if(!is.null(exp.data)){	#
 
 
 	w <- exp.id	# the list of terms not already clustered (initially all the terms)
-	
-	
+
+
 	while(length(w) > 0){
 		x <- matrix("",length(w),1)
 		names(x) <- w
-	
-	
+
+
 		for(i in 1:length(w)){
-		
+
 		# selecting the first term among those not already clustered		
 			a <- as.matrix(exp.list[w[i]][[1]])
-			
+
 		# comparing the significance of association with the rest of not already clustered terms
 			y <- matrix(NA,length(w),1)			
 			names(y) <- w
-					
+
 			for(j in 1:length(w)){
 				if(w[j] != w[i]){
 					b <- as.matrix(exp.list[w[j]][[1]])
-		
+
 		# using a parameterised method for comparing terms		
 					y[j] <- term.compare(a,b,gene.frame,exp.total,compare,genes.correl)
-					
+
 					rm(b)
 				}		
 			}
-			
+
 			if(length(sort(y)) > 0){
-				
+
 				y <- sort(y)
 				names.y <- names(y)
 				#y <- p.adjust(y,method="fdr",n=length(y))
 				y <- fdr.adjust(pvalues=y)	# FDR Paciorek
-				
+
 				names(y) <- names.y			
 				y <- y[y <= 0.05]
 			}else{
 				y <- NULL
 			}
-			
+
 		# comparing the significance of association with existing clusters
 			u <- NULL
-			
+
 			if(length(id.cluster) > 0){
-				
+
 				u <- matrix(2,length(id.cluster),1)
 				names(u) <- as.character(1:length(u))
-				
+
 				for(j in 1:length(id.cluster)){
 					b <- as.matrix(gene.cluster[[j]])
-					
+
 		# using a parameterised method for comparing terms and clusters
 					u[j] <- term.compare(a,b,gene.frame,exp.total,compare,genes.correl)
-					
+
 					rm(b)
 				}				
 			}
-			
-			
+
+
 			if(length(sort(u)) > 0){
-				
+
 				u <- sort(u)
 				names.u <- names(u)
 				#u <- p.adjust(u,method="fdr",n=length(u))
 				u <- fdr.adjust(pvalues=u)	# FDR Paciorek
-				
+
 				names(u) <- names.u
 				u <- u[u <= 0.05]
 			}else{
 				u <- NULL
 			}
-			
+
 			yu <- c(y,u)
-			
-			
+
+
 			if(length(yu) > 0){
 				yu <- yu[yu == sort(yu)[1]]
-				
+
 				if(yu[1] <= 0.05){
-					
+
 					if(length(yu) > 1){
 						cluster.found <- FALSE
-						
+
 						for(j in 1:length(yu)){
 							z <- as.character(1:length(id.cluster))
 							if(length(z[z == names(yu[j])]) > 0 & cluster.found == FALSE){
@@ -1284,38 +1284,38 @@ if(!is.null(exp.data)){	#
 								cluster.found <- TRUE
 							}
 						}
-						
+
 						if(cluster.found == FALSE){
 							x[i] <- names(yu[1])
 						}
 					}else{
 						x[i] <- names(yu[1])
 					}					
-					
+
 				}
 			}
-			
+
 			rm(a,y,u,yu)		
 		}
-	
+
 		if(length(x[x == ""]) == length(x)){
 			n <- length(id.cluster)
-		
+
 			for(i in 1:length(x)){
 				n <- n + 1
 				id.cluster[[n]] <- names(x[i])
 				gene.cluster[[n]] <- exp.list[[names(x[i])]]
 			}
 			w <- NULL
-			
+
 		}else{
-	
+
 			x <- x[x != ""]
-		
+
 			if(length(id.cluster) > 0){
-			
+
 				modif.cluster <- FALSE
-			
+
 				for(i in 1:length(id.cluster)){
 					if(length(x[x == as.character(i)]) > 0){
 						modif.cluster <- TRUE
@@ -1327,31 +1327,31 @@ if(!is.null(exp.data)){	#
 						}
 					}
 				}
-			
+
 				if(modif.cluster == FALSE){
 					id.cluster[[length(id.cluster) + 1]] <- c(x[[1]],names(x[1]))
 					gene.cluster[[length(gene.cluster) + 1]] <- levels(as.factor(c(exp.list[[names(x[1])]],exp.list[[x[[1]]]])))
 					w <- w[w != x[[1]] & w != names(x[1])]
 				}
-			
+
 			}else{
 				id.cluster[[length(id.cluster) + 1]] <- c(x[[1]],names(x[1]))
 				gene.cluster[[length(gene.cluster) + 1]] <- levels(as.factor(c(exp.list[[names(x[1])]],exp.list[[x[[1]]]])))
 				w <- w[w != x[[1]] & w != names(x[1])]
 			}
-			
+
 			rm(x)		
-		
+
 		}
-	
-	
+
+
 	}
-	
-	
+
+
 	if(length(id.cluster) > 0){
-		
+
 		term.cluster <- as.list(NULL)
-	
+
 		for(i in 1:length(id.cluster)){
 			a <- as.vector(NULL)
 			for(j in 1:length(id.cluster[[i]])){
@@ -1359,7 +1359,7 @@ if(!is.null(exp.data)){	#
 			}
 			term.cluster[[i]] <- a
 		}
-	
+
 		clusters <- list(id.cluster=id.cluster,term.cluster=term.cluster,gene.cluster=gene.cluster)
 	}else{
 		clusters <- NULL
@@ -1371,7 +1371,7 @@ if(!is.null(exp.data)){	#
 }
 	return(clusters)
 	rm()
-		
+
 }
 
 
@@ -1383,19 +1383,19 @@ if(!is.null(exp.data)){	#
 #############################################################################################
 
 clusterm.cs <- function(exp.data,taxoname,nom,alpha,compare,gene.frame,genes.correl){
-	
+
 	cat(paste("\n\t",taxoname," annotation consecutive clustering of genes ", nom," started... ",format(Sys.time(), "%X"),sep=""))
-	
+
 if(!is.null(exp.data)){
 
 	v <- as.list(NULL)
-				
+
 	for(i in 1:length(genes.correl)){
 		if(length(genes.correl[[i]]) > 1){
 			v[[length(v) + 1]] <- genes.correl[[i]]
 		}
 	}
-			
+
 	genes.correl <- v
 	rm(v)
 
@@ -1407,15 +1407,15 @@ if(!is.null(exp.data)){
 	names(term.p) <- exp.id
 	exp.list <- exp.data$exp.list
 	names(exp.list) <- exp.id
-	
+
 
 	exp.id <- exp.id[order(term.p)]
 	exp.term <- exp.term[order(term.p)]
 	exp.list <- exp.list[order(term.p)]
 	term.p <- sort(term.p)
-	
+
 	exp.total <- exp.data$exp.total[1]
-	
+
 # p-values term selection
 
 	if(alpha != 1){
@@ -1424,7 +1424,7 @@ if(!is.null(exp.data)){
 		exp.term <- exp.term[names(term.p)]
 		exp.list <- exp.list[names(term.p)]		
 	}
-	
+
 # starting term clustering
 
 	id.cluster <- as.list(NULL)
@@ -1432,27 +1432,27 @@ if(!is.null(exp.data)){
 	id.cluster[[1]] <- exp.id[1]
 	gene.cluster <- as.list(NULL)
 	gene.cluster[[1]] <- exp.list[as.character(exp.id[1])][[1]]
-	
+
 
 	x <- exp.id[2:length(exp.id)]
 	names(x) <- x
 	y <- matrix(NA,length(x),1)
 	names(y) <- x
-	
+
 	k <- 1
-	
+
 	while(length(x) > 0){
 
-	
+
 		for(i in 1:length(x)){
 			a <- x[i]
 			b <- as.matrix(exp.list[a][[1]])
-		
+
 		# using a parameterised method for comparing terms and clusters
 			y[i] <- term.compare(b,gene.cluster[[k]],gene.frame,exp.total,compare,genes.correl)
-		
+
 		}
-	
+
 		if(length(sort(y)) > 0){
 			y <- sort(y)			
 			z <- data.frame(x[names(y)],y)
@@ -1460,7 +1460,7 @@ if(!is.null(exp.data)){
 			#z[,2] <- p.adjust(z[,2],method="fdr",n=length(z[,2]))
 			z[,2] <- fdr.adjust(pvalues=z[,2])	# FDR Paciorek
 
-		
+
 			if(z[1,2] <= 0.05){
 				id.cluster[[k]] <- c(id.cluster[[k]],as.character(z[1,1]))
 				gene.cluster[[k]] <- levels(as.factor(c(gene.cluster[[k]],exp.list[as.character(z[1,1])][[1]])))
@@ -1482,7 +1482,7 @@ if(!is.null(exp.data)){
 				gene.cluster[[k]] <- exp.list[as.character(x[1])][[1]]
 				x <- as.vector(NULL)
 			}
-	
+
 		}else if(length(x) >= 2){
 			k <- k + 1
 			id.cluster[[k]] <- x[1]
@@ -1491,21 +1491,21 @@ if(!is.null(exp.data)){
 			names(x) <- x
 			y <- matrix(NA,length(x),1)
 			names(y) <- x
-			
+
 		}else{
 			k <- k + 1
 			id.cluster[[k]] <- x[1]
 			gene.cluster[[k]] <- exp.list[as.character(x[1])][[1]]
 			x <- as.vector(NULL)
 		}
-	
+
 	}
-	
+
 	if(length(id.cluster) > 0){
-	
+
 
 		term.cluster <- as.list(NULL)
-	
+
 		for(i in 1:length(id.cluster)){
 			a <- as.vector(NULL)
 			for(j in 1:length(id.cluster[[i]])){
@@ -1513,13 +1513,13 @@ if(!is.null(exp.data)){
 			}
 			term.cluster[[i]] <- a
 		}
-	
+
 		clusters <- list(id.cluster=id.cluster,term.cluster=term.cluster,gene.cluster=gene.cluster)
 	}else{
 		clusters <- NULL
 		cat("\n\t\tNo clusters were created...")
 	}
-	
+
 }else{
 	clusters <- NULL
 	cat("\n\t\tNo clusters were created...")
@@ -1537,7 +1537,7 @@ if(!is.null(exp.data)){
 #############################################################################################
 
 cluster.c <- function(clusters,exp.data,annotations,taxoname,nom){
-	
+
 	cat(paste("\n\t",taxoname," clusters weight center calculation for genes ",nom, " started... ",format(Sys.time(), "%X"),sep=""))
 
 if(!is.null(clusters)){
@@ -1545,62 +1545,62 @@ if(!is.null(clusters)){
 	id.cluster <- clusters$id.cluster
 	term.cluster <- clusters$term.cluster
 	gene.cluster <- clusters$gene.cluster
-	
+
 	annot.id <- annotations$annot.id
 	genes.nr <- annotations$genes.nr
 	names(genes.nr) <- annot.id
-	
-	
+
+
 	exp.id <- exp.data$exp.id
 	names(exp.id) <- exp.id
 	exp.term <- exp.data$exp.term
 	names(exp.term) <- exp.id
 	exp.list <- exp.data$exp.list
 	names(exp.list) <- exp.id
-	
+
 	center.cluster <- matrix("NA",length(id.cluster),1)
-	
+
 	for(i in 1:length(id.cluster)){
 		x <- id.cluster[[i]]
 		y <- gene.cluster[[i]]
 		names(y) <- y
-		
+
 		for(j in 1:length(x)){
 			z <- exp.list[[x[j]]]
 			y <- sort(y[z])		
 		}
-		
+
 		if(length(y) > 0){
-			
+
 			z <- matrix(2,length(x),1)
 			names(z) <- x
-			
+
 			for(j in 1:length(x)){
 				z[j] <- pvalues(data.frame(length(y),length(y),length(exp.list[[x[j]]]),length(gene.cluster[[i]])))
 			}
-			
-			
+
+
 			if(length(z[z != 2]) > 0){
 				names.z <- names(z[z != 2])
 				z <- z[z != 2]
 				#z <- p.adjust(z,method="fdr",n=length(z))
 				z <- fdr.adjust(pvalues=z)	# FDR Paciorek
-				
+
 				names(z) <- names.z
-			
+
 				z <- sort(z)
-					
+
 				if(length(z[z == z[1]]) > 1){
 					z <- z[z == z[1]]
 					w <- matrix(0,length(z),1)
 					names(w) <- names(z)
-						
+
 					for(j in 1:length(w)){
 						w[j] <- genes.nr[[names(w[j])]]
 					}
-						
+
 					center.cluster[i] <- names(sort(w)[1])
-						
+
 				}else{
 					center.cluster[i] <- names(z[1])
 				}								
@@ -1608,14 +1608,14 @@ if(!is.null(clusters)){
 		}
 		rm(x,y,z)
 	}
-	
-	
+
+
 	clusters <- list(id.cluster=id.cluster,term.cluster=term.cluster,gene.cluster=gene.cluster,center.cluster=center.cluster)
 }else{
 	clusters <- NULL
 	cat("\n\t\tNo weight center was calculated...")
 }
-	
+
 
 	return(clusters)	
 	rm()
@@ -1642,7 +1642,7 @@ if(!is.null(clusters)){
 	term.cluster <- clusters$term.cluster
 	gene.cluster <- clusters$gene.cluster
 	center.cluster <- clusters$center.cluster
-	
+
 	exp.id <- exp.data$exp.id
 	names(exp.id) <- exp.id
 	exp.list <- exp.data$exp.list
@@ -1653,52 +1653,52 @@ if(!is.null(clusters)){
 	genes.total <- annotations$genes.total
 	genes.list <- annotations$genes.list
 	names(genes.list) <- annot.id
-	
+
 	list.hits <- matrix(0,length(id.cluster),1)
 	list.total <- matrix(exp.total,length(id.cluster),1)
 	pop.hits <- matrix(0,length(id.cluster),1)
 	pop.total <- matrix(genes.total,length(id.cluster),1)
-	
+
 	for(i in 1:length(id.cluster)){
 		list.hits[i] <- length(gene.cluster[[i]])
 		a <- genes.list[id.cluster[[i]]]
 		b <- NULL
-		
+
 		for(j in 1:length(a)){
 			b <- c(b,a[[j]])
 		}
-		
+
 		b <- levels(as.factor(b))
 		pop.hits[i] <- length(b)
 		rm(a,b)		
 	}
-	
+
 	data.cluster <- data.frame(list.hits,list.total,pop.hits,pop.total)
-	
+
 	cluster.p <- pvalues(data.cluster)
 	cluster.hommel <- p.adjust(cluster.p,method="hommel",n=length(cluster.p))
 	#cluster.fdr <- p.adjust(cluster.p,method="fdr",n=length(cluster.p))
 	cluster.fdr <- fdr.adjust(pvalues=cluster.p)	# FDR Paciorek
-		
+
 	id.cluster <- id.cluster[order(cluster.p)]
 	term.cluster <- term.cluster[order(cluster.p)]
 	gene.cluster <- gene.cluster[order(cluster.p)]
 	center.cluster <- center.cluster[order(cluster.p)]
-	
+
 	data.cluster <- data.cluster[order(cluster.p),]
-	
+
 	cluster.hommel <- cluster.hommel[order(cluster.p)]
 	cluster.fdr <- cluster.fdr[order(cluster.p)]
 	cluster.p <- sort(cluster.p)
-	
+
 	data.cluster <- data.frame(data.cluster,cluster.p,cluster.hommel,cluster.fdr)
-	
+
 	clusters <- list(id.cluster=id.cluster,term.cluster=term.cluster,gene.cluster=gene.cluster,center.cluster=center.cluster,data.cluster=data.cluster)
 }else{
 	clusters <- NULL
 	cat("\n\t\tNo p-values were calculated...")
 }
-	
+
 
 	return(clusters)
 	rm()
@@ -1714,9 +1714,9 @@ if(!is.null(clusters)){
 #############################################################################################
 
 resclust <- function(exp.data,clusters,taxoname,nom,pref,locus.name,results.dir){
-	
+
 	cat(paste("\n\tSaving ",taxoname," ",nom," clustering results... ",format(Sys.time(), "%X"),sep=""))
-	
+
 if(!is.null(clusters)){
 
 	id.cluster <- clusters$id.cluster
@@ -1724,11 +1724,11 @@ if(!is.null(clusters)){
 	gene.cluster <- clusters$gene.cluster
 	center.cluster <- clusters$center.cluster
 	data.cluster <- clusters$data.cluster
-	
+
 	term.p <- exp.data$term.p
 	term.hommel <- exp.data$term.hommel[order(term.p)]
 	term.fdr <- exp.data$term.fdr[order(term.p)]
-	
+
 	exp.id <- exp.data$exp.id[order(term.p)]
 	exp.term <- exp.data$exp.term[order(term.p)]
 	exp.nr <- exp.data$exp.nr[order(term.p)]
@@ -1737,10 +1737,10 @@ if(!is.null(clusters)){
 	pop.hits <- exp.data$pop.hits[order(term.p)]
 	pop.total <- exp.data$pop.total[order(term.p)]
 	exp.list <- exp.data$exp.list[order(term.p)]
-	
+
 	term.p <- sort(term.p)
 	index <- row(as.matrix(term.p))
-	
+
 
 	names(exp.term) <- exp.id
 	names(exp.nr) <- exp.id
@@ -1755,14 +1755,14 @@ if(!is.null(clusters)){
 	names(term.hommel) <- exp.id
 	names(term.fdr) <- exp.id
 	names(index) <- exp.id
-		
+
 
 	str.genes.cluster <- matrix("",length(gene.cluster),1)
 	str.names.cluster <- matrix("",length(gene.cluster),1)
-			
+
 	for(i in 1:length(gene.cluster)){
 		gene.cluster[[i]] -> a
-		
+
 		"" -> b
 		"" -> d
 		for(j in 1:length(a)){
@@ -1772,12 +1772,12 @@ if(!is.null(clusters)){
 		b -> str.genes.cluster[i]
 		d -> str.names.cluster[i]
 	}
-			
+
 	rm(a,b,d)
-	
+
 	wd <- getwd()	
 	options(warn=-1)
-	
+
 	head <- paste("<html>
 
 <head>
@@ -1865,17 +1865,17 @@ if(!is.null(clusters)){
 	</tr>
 </table>
 <p>",sep="")
-	
-	
+
+
 	write(head, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
-	
-	
+
+
 	for(i in 1:length(id.cluster)){
 
 		cluster.head <- paste("
 		<p>
 ..........................................................................................................................</p>
-<p><b><span style='LETTER-SPACING: 2pt; color: navy; font-family: Arial, sans-serif'><font size='3'>Cluster n° ",i,"</font></span></b></p>
+<p><b><span style='LETTER-SPACING: 2pt; color: navy; font-family: Arial, sans-serif'><font size='3'>Cluster n ",i,"</font></span></b></p>
 <table border='1' id='table",i,"' style='border-collapse: collapse' bordercolor='#808080'>
 	<tr>
 		<td align='center' width='45'><b>Terms</b></td>
@@ -1932,20 +1932,20 @@ if(!is.null(clusters)){
 		<td align='center' width='100'><b>Genes ID's</b></td>
 		<td align='center' width='200'><b>Genes Names</b></td>
 	</tr>",sep="")
-		
+
 		write(cluster.head, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
-		
-		
+
+
 		for(j in 1:length(id.cluster[[i]])){
-			
+
 			exp.term.lnk <- ""
 			exp.id.lnk <- ""
 			str.genes.term <- ""
 			str.names.term <- ""
-						
-			
+
+
 			exp.list[[id.cluster[[i]][j]]] -> a
-			
+
 			"" -> b
 			"" -> d
 			for(k in 1:length(a)){
@@ -1954,9 +1954,9 @@ if(!is.null(clusters)){
 			}
 			b -> str.genes.term
 			d -> str.names.term
-				
+
 			rm(a,b)			
-			
+
 			if(taxoname == "GO Biological Process" || taxoname == "GO Cellular Component" || taxoname == "GO Molecular Function"){
 				exp.term.lnk <- paste("<a target='_blank' href='http://www.ebi.ac.uk/ego/DisplayGoTerm?id=",id.cluster[[i]][j],"' style='text-decoration: none'>
 						<font size='3'>",term.cluster[[i]][j],"</font></a>",sep="")
@@ -1966,10 +1966,10 @@ if(!is.null(clusters)){
 				exp.term.lnk <- paste("<font size='3'>",term.cluster[[i]][j],"</font>",sep="")
 				exp.id.lnk <- paste("<font size='3'>",id.cluster[[i]][j],"</font>",sep="")
 			}
-			
-			
-						
-		
+
+
+
+
 		cluster.terms <- paste("
 		<tr>
 		<td align='center' width='70'>
@@ -1985,15 +1985,15 @@ if(!is.null(clusters)){
 		<td align='center' width='100'><textarea rows='0' name='Genes",i,"3' cols='7'>",str.genes.term,"</textarea></td>
 		<td align='center' width='200'><select size='1' name='Genes",i,"4'>",str.names.term,"</select></td>
 		</tr>",sep="")
-		
-					
+
+
 		write(cluster.terms, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
 
 		}
 		write("</table>", file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
 
 	}
-		
+
 		end.page <- paste("<p>
 		..........................................................................................................................</p>
 		<p>
@@ -2005,12 +2005,12 @@ if(!is.null(clusters)){
 
 		write(end.page, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotation Clusters.htm",sep=""), append = TRUE, sep = " ")
 
-	
-	
+
+
 }else{
 	cat(paste("\n\t\tNo ",taxoname," ",nom," clustering results to save...",sep=""))
 }
-	
+
 	rm()
 
 }
@@ -2025,11 +2025,11 @@ if(!is.null(clusters)){
 #############################################################################################
 
 resterm <- function(exp.data,taxoname,nom,locus.name,results.dir){
-	
+
 	cat(paste("\n\tSaving ",taxoname," ",nom," annotation results... ",format(Sys.time(), "%X"),sep=""))
-	
+
 if(!is.null(exp.data)){
-	
+
 	term.p <- exp.data$term.p
 	exp.id <- exp.data$exp.id[order(term.p)]
 	exp.term <- exp.data$exp.term[order(term.p)]
@@ -2038,55 +2038,55 @@ if(!is.null(exp.data)){
 	pop.hits <- exp.data$pop.hits[order(term.p)]
 	pop.total <- exp.data$pop.total[order(term.p)]
 	exp.list <- exp.data$exp.list[order(term.p)]
-	
+
 	term.p <- sort(term.p)
 	term.hommel <- exp.data$term.hommel[order(term.p)]
 	term.fdr <- exp.data$term.fdr[order(term.p)]
 	#term.qval <- exp.data$term.qval
-	
 
-	
+
+
 # list (as a string) of genes for each term
-	
+
 	list.genes <- matrix("",length(exp.list),1)
 	list.names <- matrix("",length(exp.list),1)
-	
+
 	for(i in 1:length(exp.list)){
 		exp.list[[i]] -> a
-		
+
 		"" -> b
 		"" -> d
 		for(j in 1:length(a)){
 			paste(b,a[j],'\n',sep="") -> b
 			paste(d,"<option value='",locus.name[locus.name[,1] == a[j],2],"'>",locus.name[locus.name[,1] == a[j],2],"</option>",sep="") -> d
-		
+
 		}
 		b -> list.genes[i]
 		d -> list.names[i]
-		
-	}
-	
-	rm(a,b,d)
-	
-	
-# routine for saving the results of treatment for GO annotations as HTML files
-	
 
-	
+	}
+
+	rm(a,b,d)
+
+
+# routine for saving the results of treatment for GO annotations as HTML files
+
+
+
 	wd <- getwd()
 	exp.term.lnk <- ""
 	exp.id.lnk <- ""
-	
-	
+
+
 	head <- paste("<html>
-	
+
 	<head>
 	<meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>
 	<title>Genes ",nom," - ",taxoname," Annotations</title>
 	</head>
-	
+
 	<body link='#0000FF' vlink='#0000FF' alink='#0000FF'>
-	
+
 	<table id='table0' style='width: 700px; border-collapse: collapse' cellPadding='0' border='0'>
 		<tr>
 			<td style='font-weight: 700; font-size: 10pt; vertical-align: middle; color: navy; font-style: normal; font-family: Arial, sans-serif; white-space: nowrap; height: 38pt; text-decoration: none; text-align: general; border: medium none; padding-left: 1px; padding-right: 1px; padding-top: 1px' align='justify'>
@@ -2154,13 +2154,13 @@ if(!is.null(exp.data)){
 			</ul>
 			</td>
 		</tr>
-		
+
 	</table>
 	<p>",sep="")
-		
-		
+
+
 	write(head, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotations.htm",sep=""), append = TRUE, sep = " ")
-		
+
 	table.head <- paste("
 	<p>
 ..........................................................................................................................</p>
@@ -2186,14 +2186,14 @@ if(!is.null(exp.data)){
 			<td align='center' width='100'><b>Genes ID's</b></td>
 			<td align='center' width='200'><b>Genes Names</b></td>
 	</tr>",sep="")
-	
+
 	write(table.head, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotations.htm",sep=""), append = TRUE, sep = " ")
-	
-	
-			
-	
+
+
+
+
 	for(i in 1:length(exp.id)){
-			
+
 		if(taxoname == "GO Biological Process" || taxoname == "GO Cellular Component" || taxoname == "GO Molecular Function"){
 			exp.term.lnk <- paste("<a target='_blank' href='http://www.ebi.ac.uk/ego/DisplayGoTerm?id=",exp.id[i],"' style='text-decoration: none'>
 						<font size='3'>",exp.term[i],"</font></a>",sep="")
@@ -2203,10 +2203,10 @@ if(!is.null(exp.data)){
 			exp.term.lnk <- paste("<font size='3'>",exp.term[i],"</font>",sep="")
 			exp.id.lnk <- paste("<font size='3'>",exp.id[i],"</font>",sep="")
 		}
-			
-	
-		
-	
+
+
+
+
 	list.terms <- paste("
 		<tr>
 		<td align='center' width='45'><font size='3'>",i,"</font></td>
@@ -2222,13 +2222,13 @@ if(!is.null(exp.data)){
 		<td align='center' width='100'><textarea rows='0' name='Genes",i,"3' cols='7'>",list.genes[i],"</textarea></td>
 		<td align='center' width='200'><select size='1' name='Genes",i,"4'>",list.names[i],"</select></td>
 		</tr>",sep="")
-		
-	
-	
+
+
+
 	write(list.terms, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotations.htm",sep=""), append = TRUE, sep = " ")
 
 	}
-		
+
 	end.page <- paste("</table>
 		<p>
 		..........................................................................................................................</p>
@@ -2241,8 +2241,8 @@ if(!is.null(exp.data)){
 
 	write(end.page, file = paste(wd,"/",results.dir,"/Genes ",nom," - ",taxoname," Annotations.htm",sep=""), append = TRUE, sep = " ")
 
-	
-	
+
+
 }else{
 	cat(paste("\n\t\tNo ",taxoname," ",nom," annotation results to save...",sep=""))
 }
@@ -2269,7 +2269,7 @@ pvalues <- function(datas){
 	for(i in 1:length(t(a))){
 		p[i] <- as.double(matrix(fisher.test(matrix(c(a[i,1],b[i,1],cc[i,1],d[i,1]),2,2),alternative = "g"),1,1))
 	}	
-	
+
 # test for p-values > 1 (to avoid errors during Storey q-values calculation)	
 
 	for(i in 1:length(p)){
@@ -2277,7 +2277,7 @@ pvalues <- function(datas){
 			p[i] <- 1
 		}
 	}
-	
+
 	return(p)
 	rm()
 }
@@ -2364,7 +2364,7 @@ fdr <- function(pvals,qlevel=0.05,method="original",adjustment.method=NULL,adjus
   } else{      # adjust for estimate of a; default is 0
     qlevel <- qlevel/(1-a)
   }
-  
+
   return(fdr.master(pvals,qlevel,method))
 }
 
