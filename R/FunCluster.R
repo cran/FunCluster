@@ -4,7 +4,7 @@ ref.list <- NULL
 up <- NULL
 down <- NULL
 genes.lst <- NULL
-f.version <- "1.03"
+f.version <- "1.04"
 
 .First.lib <- function(lib, pkg, ...)
 {
@@ -200,7 +200,6 @@ FunCluster <- function(wd="", org="HS", go.direct=FALSE, clusterm="cc", compare=
 }
 
 
-
 #############################################################################################
 #
 # 2. Function MAIN.LOOP() -> Recursive treatment of data
@@ -305,17 +304,17 @@ if(!is.null(up) && !is.null(down) && is.null(genes.lst) && !is.null(annotations)
 
 
 filter.genes <- function(up=NULL,down=NULL,genes.lst=NULL,two.lists=TRUE,restrict=FALSE,ref.list=NULL){
-
+	
 	if(restrict == TRUE && !is.null(ref.list)){
-
+		
 		cat(paste("\n\tFiltering reference list started... ",format(Sys.time(), "%X"),sep=""))
-
+		
 		genes.locus <- NULL
-
+		
 		for(i in 1:length(ref.list[,1])){
 			if(regexpr(";",as.character(ref.list[i,1])) != -1){
 				x <- strsplit(gsub(" ","",as.character(ref.list[i,1])),";")[[1]]
-
+							
 				for(j in 1:length(x)){
 					genes.locus <- c(genes.locus,x[j])				
 				}
@@ -323,11 +322,11 @@ filter.genes <- function(up=NULL,down=NULL,genes.lst=NULL,two.lists=TRUE,restric
 				genes.locus <- c(genes.locus,as.character(ref.list[i,1]))				
 			}		
 		}
-
+		
 		genes.locus <- levels(as.factor(genes.locus))
 		genes.locus <- genes.locus[genes.locus != ""]
 		names(genes.locus) <- genes.locus
-
+		
 		return(list(ref.list=genes.locus))
 	}
 
@@ -337,14 +336,14 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 
 	cat(paste("\n\tFiltering genes list started... ",format(Sys.time(), "%X"),sep=""))
 
-
+	
 	genes.matrix <- NULL
 	genes.locus <- NULL
-
+	
 	for(i in 1:length(genes.lst[,1])){
 		if(regexpr(";",as.character(genes.lst[i,1])) != -1){
 			x <- strsplit(gsub(" ","",as.character(genes.lst[i,1])),";")[[1]]
-
+						
 			for(j in 1:length(x)){
 				genes.locus <- c(genes.locus,x[j])				
 				genes.matrix <- rbind(genes.matrix,as.double(genes.lst[i,2:length(genes.lst)]))	
@@ -354,47 +353,48 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 			genes.matrix <- rbind(genes.matrix,as.double(genes.lst[i,2:length(genes.lst)]))
 		}		
 	}
-
+	
 
 	names(genes.matrix) <- 1:length(genes.matrix)
 
 	genes.frame <- data.frame(genes.locus,genes.matrix)
-
+	
 	genes.locus <- levels(as.factor(genes.locus))
-
+	
 	genes.frame.new <- NULL
-
+	
 	for(i in 1:length(genes.locus)){
-
+		
 		datas <- genes.frame[genes.frame[,1] == genes.locus[i],][,2:length(genes.frame)]
-
+		
 		if(is.vector(datas) != TRUE){
-			datas <- mean(datas, na.rm = TRUE)
+			datas <- apply(datas,2,function(x) mean(as.double(x),na.rm=TRUE))
+			datas[is.nan(datas)] <- NA
 		}else{
 			datas <- as.double(datas)
 		}
-
+		
 		genes.frame.new <- rbind(genes.frame.new,c(genes.locus[i],datas))
-
+		
 	}
-
+	
 	genes.frame <- as.data.frame(genes.frame.new)
-
+	
 	return(list(genes.lst=genes.locus,genes.frame=genes.frame))
 
 
 
 }else if(two.lists == TRUE && !is.null(up) && !is.null(down)){
-
+	
 	cat(paste("\n\tFiltering genes UP/DOWN started... ",format(Sys.time(), "%X"),sep=""))
-
+	
 	up.matrix <- NULL
 	up.locus <- NULL
-
+	
 	for(i in 1:length(up[,1])){
 		if(regexpr(";",as.character(up[i,1])) != -1){
 			x <- strsplit(gsub(" ","",as.character(up[i,1])),";")[[1]]
-
+						
 			for(j in 1:length(x)){
 				up.locus <- c(up.locus,x[j])				
 				up.matrix <- rbind(up.matrix,as.double(up[i,2:length(up)]))	
@@ -404,20 +404,20 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 			up.matrix <- rbind(up.matrix,as.double(up[i,2:length(up)]))
 		}		
 	}
-
+	
 
 	names(up.matrix) <- 1:length(up.matrix)
 
 	up.frame <- data.frame(up.locus,up.matrix)
 
-
+	
 	down.matrix <- NULL
 	down.locus <- NULL
-
+		
 	for(i in 1:length(down[,1])){
 		if(regexpr(";",as.character(down[i,1])) != -1){
 			x <- strsplit(gsub(" ","",as.character(down[i,1])),";")[[1]]
-
+							
 			for(j in 1:length(x)){
 				down.locus <- c(down.locus,x[j])				
 				down.matrix <- rbind(down.matrix,as.double(down[i,2:length(down)]))	
@@ -427,21 +427,21 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 			down.matrix <- rbind(down.matrix,as.double(down[i,2:length(down)]))
 		}		
 	}
-
+		
 	names(down.matrix) <- 1:length(down.matrix)	
 
 	down.frame <- data.frame(down.locus,down.matrix)
+	
 
-
-
+	
 
 	up.locus <- levels(as.factor(up.locus))
 	names(up.locus) <- up.locus
 	down.locus <- levels(as.factor(down.locus))
 	names(down.locus) <- down.locus
-
+	
 	x <- sort(up.locus[down.locus])
-
+        
 	if(length(x) > 0){
 	for(i in 1:length(x)){
 		up.frame <- up.frame[up.frame[,1] != x[i],]
@@ -449,71 +449,73 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 		down.frame <- down.frame[down.frame[,1] != x[i],]
 		down.locus <- down.locus[down.locus != x[i]]
 	}}
-
+	
 	rm(x)
-
+	
 	up.matrix <- NULL
-
+	
 	for(i in 1:length(up.locus)){
 		x <- up.frame[up.frame[,1] == up.locus[i],2:ncol(up.frame)]
 		x <- mean(x)
 		up.matrix <- rbind(up.matrix,x)		
 	}
-
+	
 	up.frame <- data.frame(up.locus,up.matrix)
 
 	up.locus <- levels(as.factor(up.locus))
-
+		
 		up.frame.new <- NULL
-
+		
 		for(i in 1:length(up.locus)){
-
+			
 			datas <- up.frame[up.frame[,1] == up.locus[i],][,2:ncol(up.frame)]
-
+			
 			if(is.vector(datas) != TRUE){
-				datas <- mean(datas, na.rm = TRUE)
+				datas <- apply(datas,2,function(x) mean(as.double(x),na.rm=TRUE))
+				datas[is.nan(datas)] <- NA
 			}else{
 				datas <- as.double(datas)
 			}			
-
+			
 			up.frame.new <- rbind(up.frame.new,c(up.locus[i],datas))
-
+			
 		}
-
+		
 	up.frame <- as.data.frame(up.frame.new)
-
-
+	
+	
 
 	down.matrix <- NULL
-
+		
 	for(i in 1:length(down.locus)){
 		x <- down.frame[down.frame[,1] == down.locus[i],2:ncol(down.frame)]
-		x <- mean(x, na.rm = TRUE)
+		x <- mean(x)
 		down.matrix <- rbind(down.matrix,x)		
 	}
-
+		
 	down.frame <- data.frame(down.locus,down.matrix)
-
+	
 	down.locus <- levels(as.factor(down.locus))
-
+		
 		down.frame.new <- NULL
-
+		
 		for(i in 1:length(down.locus)){
-
+			
 			datas <- down.frame[down.frame[,1] == down.locus[i],][,2:ncol(down.frame)]
-
+			
 			if(is.vector(datas) != TRUE){
-				datas <- mean(datas)
+				datas <- apply(datas,2,function(x) mean(as.double(x),na.rm=TRUE))
+				datas[is.nan(datas)] <- NA
 			}else{
-				datas <- as.double(datas, na.rm = TRUE)
+				datas <- as.double(datas)
 			}
-
+			
 			down.frame.new <- rbind(down.frame.new,c(down.locus[i],datas))
-
+			
 		}
-
+		
 	down.frame <- as.data.frame(down.frame.new)
-
+	
 
 	return(list(up=up.locus,down=down.locus,up.frame=up.frame,down.frame=down.frame))
 }
@@ -522,8 +524,6 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 	rm()
 
 }
-
-
 
 
 
@@ -922,12 +922,6 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 		best.index <- as.numeric(names(sil.hc[sil.hc == max(sil.hc)]))
 
 		best.partition <- cutree(hc, k = best.index)
-		#sil <- silhouette(best.partition, y.dist)
-		#sil.part <- mean(summary(sil)$clus.avg.width)
-		#sil.cluster <- summary(sil)$clus.avg.width
-		#cat(paste("\n\t\tPartition silhouette: ",sil.part,sep=""))
-		#cat(paste("\n\t\Clusters silhouettes: ",sil.cluster,sep=""))
-		#save(best.partition,y.corr,file=paste("clusters_HS_",nom,".RData",sep=""))
 
 		for(i in 1:best.index){		
 			genes.correl[[length(genes.correl) + 1]] <- as.character(names(best.partition[best.partition == i]))
@@ -966,12 +960,6 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 		best.index <- as.numeric(names(sil.hc[sil.hc == max(sil.hc)]))
 
 		best.partition <- cutree(hc, k = best.index)
-		#sil <- silhouette(best.partition, y.dist)
-		#sil.part <- mean(summary(sil)$clus.avg.width)
-		#sil.cluster <- summary(sil)$clus.avg.width
-		#cat(paste("\n\t\tPartition silhouette: ",sil.part,sep=""))
-		#cat(paste("\n\t\Clusters silhouettes: ",sil.cluster,sep=""))
-		#save(best.partition,y.corr,file=paste("clusters_HS_",nom,".RData",sep=""))
 
 		for(i in 1:best.index){		
 			genes.correl[[length(genes.correl) + 1]] <- as.character(names(best.partition[best.partition == i]))
@@ -1007,11 +995,6 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 
 
 			genes.correl[[length(genes.correl) + 1]] <- z
-			#cat(paste("\n\t\tz: ",length(z),sep=""))
-			#cat(paste("\n\t\ty.corr: ",nrow(y.corr),sep=""))
-			#z <<- z
-			#y.corr <<- y.corr
-
 			w <- w[!(rownames(w) %in%  z),]
 			y.corr <- y.corr[!(rownames(y.corr) %in%  z),!(colnames(y.corr) %in%  z)]
 
@@ -1033,31 +1016,6 @@ gene.correl <- function(gene.frame,corr.th,method,nom){
 		}}
 
 
-
-
-
-		#best.partition <- as.vector(NULL)
-		#j <- 1
-		#for(i in 1:length(genes.correl)){
-		#	if(length(genes.correl[[i]])>1){
-		#		z <- as.vector(matrix(j,length(genes.correl[[i]]),1))
-		#		names(z) <- as.character(genes.correl[[i]])
-		#		best.partition <- c(best.partition, z)
-		#		j <- j+1
-		#	}
-		#}
-
-		#w.init -> w
-		#x <- as.character(w[,1])
-
-		#y <- w[,2:ncol(w)]
-		#rownames(y) <- x
-
-		#y.corr <- rcorr(t(y),type="spearman")$r
-		#cat(paste("\n\t\tCorrelation matrix computed... ",format(Sys.time(), "%X"),sep=""))
-		#y.corr <- y.corr[rownames(y.corr) %in% names(best.partition),colnames(y.corr) %in% names(best.partition)]
-
-		#save(genes.correl,y.corr,best.partition,file=paste("clusters_G_",corr.th,"_",nom,".RData",sep=""))
 	}
 
 

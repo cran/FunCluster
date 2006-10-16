@@ -298,7 +298,7 @@ GeneInfo <- function(){
 	rm(vecTemp)
 
 
-	DTLLbrut <- read.table ( file = LLTemp,na.strings = "-",fill=TRUE ,colClasses="character",col.names =c(1:13),sep= "\t",header = FALSE, quote = "",comment.char = "")
+	DTLLbrut <- read.table ( file = LLTemp,na.strings = "-",fill=TRUE,colClasses="character",col.names =c(1:14),sep= "\t",header = FALSE, quote = "",comment.char = "")
 	DTLL <- cbind(DTLLbrut[,1],DTLLbrut[,2],DTLLbrut[,7],DTLLbrut[,8],DTLLbrut[,9])
 
 	close(LLTempgz)
@@ -328,7 +328,7 @@ GeneInfoSC <- function(){
 	rm(vecTemp)
 
 
-	DTLLbrut <- read.table ( file = LLTemp,na.strings = "-",fill=TRUE ,colClasses="character",col.names =c(1:13),sep= "\t",header = FALSE, quote = "",comment.char = "")
+	DTLLbrut <- read.table ( file = LLTemp,na.strings = "-",fill=TRUE ,colClasses="character",col.names =c(1:14),sep= "\t",header = FALSE, quote = "",comment.char = "")
 	DTLL <- cbind(DTLLbrut[,1],DTLLbrut[,2],DTLLbrut[,3],DTLLbrut[,4],DTLLbrut[,7],DTLLbrut[,8],DTLLbrut[,9])
 
 	close(LLTempgz)
@@ -563,6 +563,30 @@ annotations <- function (date.annot="") {
 	Kegg ()
 	goAndLL(DATE=date.annot)
 	annot.date <- format(Sys.time(), "%Y %b %d")
+	
+# 	GO.terms.hierarchy <-GO.terms.hierarchy[(GO.terms.hierarchy[,1] %in% GO.terms.name[,1]) && (GO.terms.hierarchy[,2] %in% GO.terms.name[,1]),]
+# 	
+# 	HS.GO.DIR.BP.file.annot <- HS.GO.DIR.BP.file.annot[(HS.GO.DIR.BP.file.annot[,2] %in% GO.terms.name[,1]) & (HS.GO.DIR.BP.file.annot[,1] %in% HS.locus.name[,1]),]
+# 	HS.GO.DIR.CC.file.annot <- HS.GO.DIR.CC.file.annot[(HS.GO.DIR.CC.file.annot[,2] %in% GO.terms.name[,1]) & (HS.GO.DIR.CC.file.annot[,1] %in% HS.locus.name[,1]),]
+# 	HS.GO.DIR.MF.file.annot <- HS.GO.DIR.MF.file.annot[(HS.GO.DIR.MF.file.annot[,2] %in% GO.terms.name[,1]) & (HS.GO.DIR.MF.file.annot[,1] %in% HS.locus.name[,1]),]
+# 	HS.GO.IND.BP.file.annot <- HS.GO.IND.BP.file.annot[(HS.GO.IND.BP.file.annot[,2] %in% GO.terms.name[,1]) & (HS.GO.IND.BP.file.annot[,1] %in% HS.locus.name[,1]),]
+# 	HS.GO.IND.CC.file.annot <- HS.GO.IND.CC.file.annot[(HS.GO.IND.CC.file.annot[,2] %in% GO.terms.name[,1]) & (HS.GO.IND.CC.file.annot[,1] %in% HS.locus.name[,1]),]
+# 	HS.GO.IND.MF.file.annot <- HS.GO.IND.MF.file.annot[(HS.GO.IND.MF.file.annot[,2] %in% GO.terms.name[,1]) & (HS.GO.IND.MF.file.annot[,1] %in% HS.locus.name[,1]),]
+# 	
+# 	MM.GO.DIR.BP.file.annot <- MM.GO.DIR.BP.file.annot[(MM.GO.DIR.BP.file.annot[,2] %in% GO.terms.name[,1]) & (MM.GO.DIR.BP.file.annot[,1] %in% MM.locus.name[,1]),]
+# 	MM.GO.DIR.CC.file.annot <- MM.GO.DIR.CC.file.annot[(MM.GO.DIR.CC.file.annot[,2] %in% GO.terms.name[,1]) & (MM.GO.DIR.CC.file.annot[,1] %in% MM.locus.name[,1]),]
+# 	MM.GO.DIR.MF.file.annot <- MM.GO.DIR.MF.file.annot[(MM.GO.DIR.MF.file.annot[,2] %in% GO.terms.name[,1]) & (MM.GO.DIR.MF.file.annot[,1] %in% MM.locus.name[,1]),]
+# 	MM.GO.IND.BP.file.annot <- MM.GO.IND.BP.file.annot[(MM.GO.IND.BP.file.annot[,2] %in% GO.terms.name[,1]) & (MM.GO.IND.BP.file.annot[,1] %in% MM.locus.name[,1]),]
+# 	MM.GO.IND.CC.file.annot <- MM.GO.IND.CC.file.annot[(MM.GO.IND.CC.file.annot[,2] %in% GO.terms.name[,1]) & (MM.GO.IND.CC.file.annot[,1] %in% MM.locus.name[,1]),]
+# 	MM.GO.IND.MF.file.annot <- MM.GO.IND.MF.file.annot[(MM.GO.IND.MF.file.annot[,2] %in% GO.terms.name[,1]) & (MM.GO.IND.MF.file.annot[,1] %in% MM.locus.name[,1]),]
+# 	
+# 	SC.GO.DIR.BP.file.annot <- SC.GO.DIR.BP.file.annot[(SC.GO.DIR.BP.file.annot[,2] %in% GO.terms.name[,1]) & (SC.GO.DIR.BP.file.annot[,1] %in% SC.locus.name[,1]),]
+# 	SC.GO.DIR.CC.file.annot <- SC.GO.DIR.CC.file.annot[(SC.GO.DIR.CC.file.annot[,2] %in% GO.terms.name[,1]) & (SC.GO.DIR.CC.file.annot[,1] %in% SC.locus.name[,1]),]
+# 	SC.GO.DIR.MF.file.annot <- SC.GO.DIR.MF.file.annot[(SC.GO.DIR.MF.file.annot[,2] %in% GO.terms.name[,1]) & (SC.GO.DIR.MF.file.annot[,1] %in% SC.locus.name[,1]),]
+# 	SC.GO.IND.BP.file.annot <- SC.GO.IND.BP.file.annot[(SC.GO.IND.BP.file.annot[,2] %in% GO.terms.name[,1]) & (SC.GO.IND.BP.file.annot[,1] %in% SC.locus.name[,1]),]
+# 	SC.GO.IND.CC.file.annot <- SC.GO.IND.CC.file.annot[(SC.GO.IND.CC.file.annot[,2] %in% GO.terms.name[,1]) & (SC.GO.IND.CC.file.annot[,1] %in% SC.locus.name[,1]),]
+# 	SC.GO.IND.MF.file.annot <- SC.GO.IND.MF.file.annot[(SC.GO.IND.MF.file.annot[,2] %in% GO.terms.name[,1]) & (SC.GO.IND.MF.file.annot[,1] %in% SC.locus.name[,1]),]
+	
 	save(GO.terms.hierarchy,GO.terms.name,HS.GO.DIR.BP.file.annot,HS.GO.DIR.CC.file.annot,HS.GO.DIR.MF.file.annot,
 		HS.GO.IND.BP.file.annot,HS.GO.IND.CC.file.annot,HS.GO.IND.MF.file.annot,HS.KEGG.file.annot,HS.locus.name,KEGG.terms.name,
 		MM.GO.DIR.BP.file.annot,MM.GO.DIR.CC.file.annot,MM.GO.DIR.MF.file.annot,MM.GO.IND.BP.file.annot,MM.GO.IND.CC.file.annot,
