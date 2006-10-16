@@ -1,5 +1,5 @@
-\name{GO.terms.hierarchy}
-\alias{GO.terms.hierarchy}
+\name{GeneInfoSC}
+\alias{GeneInfoSC}
 \docType{data}
 \title{Internal routine or variable}
 \description{

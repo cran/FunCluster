@@ -99,15 +99,34 @@ ChargerKegg <- function(espece = espece) {
 		HS.KEGG.file.annot <<- read.table ( file = FichierFinalNonQuote ,na.strings = "",fill=TRUE,colClasses="character",sep= "\t",header = FALSE,quote = "",comment.char = "")
 		write.table (HS.KEGG.file.annot , FichierFinal ,col.names =FALSE,row.names=FALSE,append = TRUE, sep= "\t") 
 
-	} else {
-		if ( espece == "mmu"){   
+	} else if ( espece == "mmu"){
 
-			MM.KEGG.file.annot <<- read.table ( file = FichierFinalNonQuote ,na.strings = "",fill=TRUE,colClasses="character",sep= "\t",header = FALSE,quote = "",comment.char = "")
-			write.table (MM.KEGG.file.annot , FichierFinal ,col.names =FALSE,row.names=FALSE,append = TRUE, sep= "\t") 
-		}else if(espece == "sce"){
-			SC.KEGG.file.annot <<- read.table ( file = FichierFinalNonQuote ,na.strings = "",fill=TRUE,colClasses="character",sep= "\t",header = FALSE,quote = "",comment.char = "")
-			write.table (SC.KEGG.file.annot , FichierFinal ,col.names =FALSE,row.names=FALSE,append = TRUE, sep= "\t") 
+		MM.KEGG.file.annot <<- read.table ( file = FichierFinalNonQuote ,na.strings = "",fill=TRUE,colClasses="character",sep= "\t",header = FALSE,quote = "",comment.char = "")
+		write.table (MM.KEGG.file.annot , FichierFinal ,col.names =FALSE,row.names=FALSE,append = TRUE, sep= "\t") 
+	
+	}else if(espece == "sce"){
+			
+		SC.KEGG.file.annot <<- read.table ( file = FichierFinalNonQuote ,na.strings = "",fill=TRUE,colClasses="character",sep= "\t",header = FALSE,quote = "",comment.char = "")
+			
+		DTLL <- GeneInfoSC()
+		DTLL <- as.matrix(DTLL[DTLL[,1] == "4932",])
+		rownames(DTLL) <- as.character(DTLL[,4])
+		SC.KEGG.file.annot <<- as.matrix(SC.KEGG.file.annot)
+		rownames(SC.KEGG.file.annot) <<- as.character(SC.KEGG.file.annot[,1])
+		x <- DTLL[DTLL[,4] %in% as.character(SC.KEGG.file.annot[,1]),2]
+		SC.KEGG.file.annot <<- SC.KEGG.file.annot[SC.KEGG.file.annot[,1] %in% names(x),]
+			
+		y <- NULL
+			
+		for(i in 1:nrow(SC.KEGG.file.annot)){				
+				
+			y <- rbind(y,c(x[SC.KEGG.file.annot[i,1]],SC.KEGG.file.annot[i,2]))
 		}
+		colnames(y) <- as.character(matrix("",1,ncol(y)))
+		SC.KEGG.file.annot <<- y	
+			
+		write.table (SC.KEGG.file.annot , FichierFinal ,col.names =FALSE, row.names=FALSE,append = TRUE, sep= "\t") 
+
 	}
 
 
@@ -295,6 +314,33 @@ GeneInfo <- function(){
 
 
 
+GeneInfoSC <- function(){
+
+
+	download.file ( paste("ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_info.gz",sep="") ,paste( getwd(),"/Annotations/Temp.gz",sep=""), mode = "wb" )
+
+	LLTempgz <- gzfile (paste(getwd(),"/Annotations/Temp.gz",sep=""),"rb") 
+
+	LLTemp <- file (paste(getwd(),"/Annotations/Temp.txt",sep=""), "w+")
+	vecTemp <- readLines(LLTempgz)
+	cat ( vecTemp , file = LLTemp, sep = "\n")
+
+	rm(vecTemp)
+
+
+	DTLLbrut <- read.table ( file = LLTemp,na.strings = "-",fill=TRUE ,colClasses="character",col.names =c(1:13),sep= "\t",header = FALSE, quote = "",comment.char = "")
+	DTLL <- cbind(DTLLbrut[,1],DTLLbrut[,2],DTLLbrut[,3],DTLLbrut[,4],DTLLbrut[,7],DTLLbrut[,8],DTLLbrut[,9])
+
+	close(LLTempgz)
+	close (LLTemp)
+	unlink (paste(getwd(),"/Annotations/Temp.gz",sep=""))
+	unlink (paste(getwd(),"/Annotations/Temp.txt",sep=""))
+
+
+	return (DTLL) 
+
+
+}
 
 
 

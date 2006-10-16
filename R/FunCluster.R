@@ -4,6 +4,20 @@ ref.list <- NULL
 up <- NULL
 down <- NULL
 genes.lst <- NULL
+f.version <- "1.03"
+
+.First.lib <- function(lib, pkg, ...)
+{
+  verbose <- .Options$Hverbose
+  if(!length(verbose) || verbose)
+
+cat(paste("\nThis is FunCluster package version ",f.version," maintained by Corneliu Henegar.\n\n",sep=""),
+	"FunCluster(wd='', org='HS', go.direct=FALSE, clusterm='cc', compare='common.correl.genes',\n",
+		      "\tcorr.met='greedy', corr.th=0.85, two.lists=TRUE, restrict=FALSE, alpha=0.05,\n",
+		      "\tlocation=FALSE, details=FALSE)\n\n",sep='')
+  invisible()
+}
+
 
 #############################################################################################
 #
@@ -355,7 +369,7 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 		datas <- genes.frame[genes.frame[,1] == genes.locus[i],][,2:length(genes.frame)]
 
 		if(is.vector(datas) != TRUE){
-			datas <- mean(datas)
+			datas <- mean(datas, na.rm = TRUE)
 		}else{
 			datas <- as.double(datas)
 		}
@@ -457,7 +471,7 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 			datas <- up.frame[up.frame[,1] == up.locus[i],][,2:ncol(up.frame)]
 
 			if(is.vector(datas) != TRUE){
-				datas <- mean(datas)
+				datas <- mean(datas, na.rm = TRUE)
 			}else{
 				datas <- as.double(datas)
 			}			
@@ -474,7 +488,7 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 
 	for(i in 1:length(down.locus)){
 		x <- down.frame[down.frame[,1] == down.locus[i],2:ncol(down.frame)]
-		x <- mean(x)
+		x <- mean(x, na.rm = TRUE)
 		down.matrix <- rbind(down.matrix,x)		
 	}
 
@@ -491,7 +505,7 @@ if(two.lists == FALSE && !is.null(genes.lst)){
 			if(is.vector(datas) != TRUE){
 				datas <- mean(datas)
 			}else{
-				datas <- as.double(datas)
+				datas <- as.double(datas, na.rm = TRUE)
 			}
 
 			down.frame.new <- rbind(down.frame.new,c(down.locus[i],datas))
@@ -764,31 +778,35 @@ annotate <- function(annotations,exp.genes,nom,terms.name,taxoname){
 
 
 annot.list <- function(ll,file.annot,taxoname,terms.name,locus.name){
-
+	
 	cat(paste("\n\t",taxoname," annotation of genes started...\n",sep=""))
-
+	
 	ll <- as.character(ll)
 	annot.matrix <- matrix("",length(ll),2)
 	annot.matrix <- cbind(ll,annot.matrix)
-
+	rownames(locus.name) <- locus.name[,1]
+	rownames(annot.matrix) <- ll
+	
 	for(i in 1:length(ll)){
 		annot.gene <- file.annot[file.annot[,1] == ll[i],]
-
+		
 		if(length(annot.gene[,1]) > 0){
 			annot.string <- ""
-
+			
 			for(j in 1:length(annot.gene[,2])){
 				annot.string <- paste(annot.string,terms.name[terms.name[,1]==as.character(annot.gene[j,2]),2],"; ",sep="")
 			}
-
-
+			
+			
 			annot.matrix[i,3] <- annot.string
-
+			
 		}
-		annot.matrix[i,2] <- locus.name[locus.name[,1]==ll[i],2]
-
+		if(length(as.character(locus.name[locus.name[,1] == ll[i],2])) > 0){
+			annot.matrix[i,2] <- as.character(locus.name[locus.name[,1] == ll[i],2])
+		}
+	
 	}
-
+	
 	return(annot.matrix)
 
 }
@@ -1998,7 +2016,7 @@ if(!is.null(clusters)){
 		..........................................................................................................................</p>
 		<p>
 		This file was produced on ",date()," with <a target='_blank' href='http://corneliu.henegar.info/FunCluster.htm' style='text-decoration: none'>
-		<font size='3'>FunCluster 1.01</font></a> using GO and KEGG annotations updated on ",annot.date,".</p>
+		<font size='3'>FunCluster ",f.version,"</font></a> using GO and KEGG annotations updated on ",annot.date,".</p>
 		</body>
 
 		</html>",sep="")
@@ -2234,7 +2252,7 @@ if(!is.null(exp.data)){
 		..........................................................................................................................</p>
 		<p>
 		This file was produced on ",date()," with <a target='_blank' href='http://corneliu.henegar.info/FunCluster.htm' style='text-decoration: none'>
-		<font size='3'>FunCluster 1.01</font></a> using GO and KEGG annotations updated on ",annot.date,".</p>
+		<font size='3'>FunCluster ",f.version,"</font></a> using GO and KEGG annotations updated on ",annot.date,".</p>
 		</body>
 
 		</html>",sep="")

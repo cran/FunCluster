@@ -118,7 +118,7 @@
           \references{
           1. Henegar C, Cancello R, Rome S, Vidal H, Clement K, Zucker JD. Clustering biological annotations and gene 
           		expression data to identify putatively co-regulated biological processes. J Bioinform Comput Biol.
-          		2006 Aug; 4(4) (in press).
+          		2006 Aug;4(4) :833-52.
           
           2. Cancello R, Henegar C, Viguerie N, Taleb S, Poitou C, Rouault C, Coupaye M, Pelloux V, Hugol D, Bouillot 
           		JL, Bouloumie A, Barbatelli G, Cinti S, Svensson PA, Barsh GS, Zucker JD, Basdevant A, Langin D,

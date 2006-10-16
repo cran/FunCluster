@@ -1,5 +1,5 @@
-\name{GO.terms.hierarchy}
-\alias{GO.terms.hierarchy}
+\name{f.version}
+\alias{f.version}
 \docType{data}
 \title{Internal routine or variable}
 \description{
