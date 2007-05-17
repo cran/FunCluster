@@ -50,7 +50,7 @@ ChargerKegg <- function(espece = espece) {
 	}
 
 
-	download.file ( paste("ftp://ftp.genome.ad.jp/pub/kegg/pathways/",espece,"/",espece,"_gene_map.tab",sep="") , paste(getwd(),"/Annotations/KEGG/",DIResp,"/tmp.txt",sep=""), mode = "w" )
+	download.file ( paste("ftp://ftp.genome.ad.jp/pub/kegg/pathway/organisms/",espece,"/",espece,"_gene_map.tab",sep="") , paste(getwd(),"/Annotations/KEGG/",DIResp,"/tmp.txt",sep=""), mode = "w" )
 
 	FichierFinalNonQuote <- file (paste(getwd(),"/Annotations/KEGG/",DIResp,"/ll_keggNonQuote.txt",sep=""), "w+")
 
@@ -145,7 +145,7 @@ Kegg <- function () {
 	dir.create(paste(getwd(),"/Annotations/KEGG",sep=""))
 
 
-	download.file ( "ftp://ftp.genome.ad.jp/pub/kegg/pathways/map_title.tab" ,paste(getwd(), "/Annotations/KEGG/Temp_kegg_terms.txt",sep=""), mode = "w" )
+	download.file ( "ftp://ftp.genome.ad.jp/pub/kegg/pathway/map_title.tab" ,paste(getwd(), "/Annotations/KEGG/Temp_kegg_terms.txt",sep=""), mode = "w" )
 	temp <- file (paste(getwd(),"/Annotations/KEGG/Temp_kegg_terms.txt",sep=""),"r")
 	Fichkeggterms <- file (paste(getwd(),"/Annotations/KEGG/kegg_terms.txt",sep=""),"w")
 
@@ -298,7 +298,7 @@ GeneInfo <- function(){
 	rm(vecTemp)
 
 
-	DTLLbrut <- read.table ( file = LLTemp,na.strings = "-",fill=TRUE,colClasses="character",col.names =c(1:14),sep= "\t",header = FALSE, quote = "",comment.char = "")
+	DTLLbrut <- read.table ( file = LLTemp,na.strings = "-",fill=TRUE,colClasses="character",sep= "\t",header = FALSE, quote = "",comment.char = "#")
 	DTLL <- cbind(DTLLbrut[,1],DTLLbrut[,2],DTLLbrut[,7],DTLLbrut[,8],DTLLbrut[,9])
 
 	close(LLTempgz)
@@ -328,7 +328,7 @@ GeneInfoSC <- function(){
 	rm(vecTemp)
 
 
-	DTLLbrut <- read.table ( file = LLTemp,na.strings = "-",fill=TRUE ,colClasses="character",col.names =c(1:14),sep= "\t",header = FALSE, quote = "",comment.char = "")
+	DTLLbrut <- read.table ( file = LLTemp,na.strings = "-",fill=TRUE ,colClasses="character",sep= "\t",header = FALSE, quote = "",comment.char = "#")
 	DTLL <- cbind(DTLLbrut[,1],DTLLbrut[,2],DTLLbrut[,3],DTLLbrut[,4],DTLLbrut[,7],DTLLbrut[,8],DTLLbrut[,9])
 
 	close(LLTempgz)
