@@ -1,7 +1,7 @@
 \name{FunCluster.R-package}
 \alias{FunCluster.R-package}
 \docType{package}
-\title{Functional Profiling of cDNA Microarray Expression Data}
+\title{Functional Profiling of Microarray Expression Data}
 \description{
           FunCluster performs a functional analysis of microarray expression data based on Gene Ontology
           & KEGG annotations. FunCluster is designed to build functional classes of putatively co-regulated
