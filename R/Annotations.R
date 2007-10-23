@@ -456,14 +456,14 @@ MakeLocusNames <- function( espece, DTLL ) {
 
 	if ( espece == "hs" ) {
 		HS.locus.name <<- DTLLesp
-		LLHSlocation <<- DTLLloc
+		HS.locus.cyto <<- DTLLloc
 	} else {
 		if ( espece == "mm"){
 			MM.locus.name <<- DTLLesp
-			LLMMlocation <<- DTLLloc
+			MM.locus.cyto <<- DTLLloc
 		}else if(espece == "sc"){
 			SC.locus.name <<- DTLLesp
-			LLSClocation <<- DTLLloc
+			SC.locus.cyto <<- DTLLloc
 
 		}
 	}
@@ -588,10 +588,10 @@ annotations <- function (date.annot="") {
 # 	SC.GO.IND.MF.file.annot <- SC.GO.IND.MF.file.annot[(SC.GO.IND.MF.file.annot[,2] %in% GO.terms.name[,1]) & (SC.GO.IND.MF.file.annot[,1] %in% SC.locus.name[,1]),]
 	
 	save(GO.terms.hierarchy,GO.terms.name,HS.GO.DIR.BP.file.annot,HS.GO.DIR.CC.file.annot,HS.GO.DIR.MF.file.annot,
-		HS.GO.IND.BP.file.annot,HS.GO.IND.CC.file.annot,HS.GO.IND.MF.file.annot,HS.KEGG.file.annot,HS.locus.name,KEGG.terms.name,
+		HS.GO.IND.BP.file.annot,HS.GO.IND.CC.file.annot,HS.GO.IND.MF.file.annot,HS.KEGG.file.annot,HS.locus.name,HS.locus.cyto,KEGG.terms.name,
 		MM.GO.DIR.BP.file.annot,MM.GO.DIR.CC.file.annot,MM.GO.DIR.MF.file.annot,MM.GO.IND.BP.file.annot,MM.GO.IND.CC.file.annot,
-		MM.GO.IND.MF.file.annot,MM.KEGG.file.annot,MM.locus.name,SC.GO.DIR.BP.file.annot,SC.GO.DIR.CC.file.annot,SC.GO.DIR.MF.file.annot,
-		SC.GO.IND.BP.file.annot,SC.GO.IND.CC.file.annot,SC.GO.IND.MF.file.annot,SC.KEGG.file.annot,SC.locus.name,
+		MM.GO.IND.MF.file.annot,MM.KEGG.file.annot,MM.locus.name,MM.locus.cyto,SC.GO.DIR.BP.file.annot,SC.GO.DIR.CC.file.annot,SC.GO.DIR.MF.file.annot,
+		SC.GO.IND.BP.file.annot,SC.GO.IND.CC.file.annot,SC.GO.IND.MF.file.annot,SC.KEGG.file.annot,SC.locus.name,SC.locus.cyto,
 		annot.date,file="sysdata.rda",compress=TRUE) 
 	q(save="no")
 
