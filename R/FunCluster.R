@@ -4,17 +4,17 @@ ref.list <- NULL
 up <- NULL
 down <- NULL
 genes.lst <- NULL
-f.version <- "1.07"
+f.version <- "1.08"
 
 .First.lib <- function(lib, pkg, ...)
 {
   verbose <- .Options$Hverbose
   if(!length(verbose) || verbose)
 
-cat(paste("\nThis is FunCluster package version ",f.version," maintained by Corneliu Henegar.\n\n",sep=""),
+cat(paste("\nThis is FunCluster package version ",f.version," maintained by Corneliu Henegar.\n\n",
 	"FunCluster(wd='', org='HS', go.direct=FALSE, clusterm='cc', compare='common.correl.genes',\n",
 		      "\tcorr.met='greedy', corr.th=0.85, two.lists=TRUE, restrict=FALSE, alpha=0.05,\n",
-		      "\tlocation=FALSE, details=FALSE)\n\n",sep='')
+		      "\tlocation=FALSE, details=FALSE)\n\n",sep=''))
   invisible()
 }
 

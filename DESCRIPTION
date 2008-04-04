@@ -1,6 +1,6 @@
 Package: FunCluster
-Version: 1.07
-Date: 2007-10-23
+Version: 1.08
+Date: 2008-04-04
 Title: Functional Profiling of Microarray Expression Data
 Author: Corneliu Henegar <corneliu@henegar.info>
 Maintainer: Corneliu Henegar <corneliu@henegar.info>
@@ -10,6 +10,6 @@ Description: FunCluster performs a functional analysis of microarray expression
 		expression data and functional annotations FunCluster builds classes
 		of putatively co-regulated biological processes through a specially 
 		designed clustering procedure.
-License: GPL version 2 or newer
+License: GPL (>= 2)
 URL: http://corneliu.henegar.info/FunCluster.htm 
-Packaged: Tue Oct 23 14:09:29 2007; chenegar
+Packaged: Fri Apr  4 10:43:16 2008; chenegar
