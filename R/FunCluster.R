@@ -4,7 +4,7 @@ ref.list <- NULL
 up <- NULL
 down <- NULL
 genes.lst <- NULL
-f.version <- "1.08"
+f.version <- "1.09"
 
 .First.lib <- function(lib, pkg, ...)
 {

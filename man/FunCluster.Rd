@@ -82,7 +82,7 @@
           		the operating system are absolute requirements.
 
           Together with the FunCluster algorithm this package provide also:\cr
-	            1. GO and KEGG annotations (as of February 2006) automatically extracted from their respective web resources\cr\cr
+	            1. GO and KEGG annotations (as of June 2008) automatically extracted from their respective web resources\cr\cr
 	            2. The routine for the automated extraction and update of the functional annotations from their respective
 	            		web resources. The use of this routine is simple: \code{annotations(date.annot = "")}. Under common
 	            		circumstances these routine will provide up-to-date annotations, stored into environmental variables,
